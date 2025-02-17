@@ -1,0 +1,39 @@
+@startuml erd
+
+hide circle
+skinparam Linetype ortho
+
+entity User {
+    * id: uuid
+    --
+    * username: string
+    * email: string
+    * password_hash: string
+    * created_at: datetime
+}
+
+entity BlogPost {
+    * id: uuid
+    --
+    * title: string
+    * text: string
+    * created_at: datetime
+    * user_id: uuid <<FK>>
+}
+
+entity Tag {
+    * id: uuid
+    --
+    * name: string
+}
+
+entity BlogPostTag {
+    * blog_id: uuid <<FK>>
+    * tag_id: uuid <<FK>>
+}
+
+User ||--o{ BlogPost
+BlogPost ||--o{ BlogPostTag
+Tag ||--o{ BlogPostTag
+
+@enduml
