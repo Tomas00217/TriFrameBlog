@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="bg-background">
+  <meta name="description" content="Blog browser">
+  <meta name="keywords" content="Blog">
+  <head>
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <title>
+      {% block title %}
+        TriFrameBlog Django
+      {% endblock title %}
+    </title>
+  </head>
+  <body>
+    <nav class="bg-primary text-primary-foreground py-4 px-8">
+      {% block navbar %}
+        <div class="flex justify-between">
+          <ul class="flex gap-2">
+            <li>
+              <a href="{% url 'index' %}">Home</a>
+            </li>
+            {% if user.is_authenticated %}
+              <li>
+                <a href="/">Profile</a>
+              </li>
+            {% endif %}
+          </ul>
+          <ul class="flex gap-2">
+            {% if user.is_authenticated %}
+              <li>
+                <form action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit">Log Out</button>
+                </form>
+              </li>
+            {% else %}
+              <li>
+                <a href="{% url 'login' %}">Login</a>
+              </li>
+              <li>
+                <a href="{% url 'register' %}">Register</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endblock navbar %}
+    </nav>
+    <main class="w-4/5 m-auto pt-4">
+      {% block content %}
+      {% endblock content %}
+    </main>
+  </body>
+</html>

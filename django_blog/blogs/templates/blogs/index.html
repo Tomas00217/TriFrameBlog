@@ -1,5 +1,4 @@
-{% load static %}
-
-<link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-
-<h1 class="text-lg text-blue-500">Hello tailwind</h1>
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="text-lg text-blue-500">Hello tailwind</h1>
+{% endblock content %}
