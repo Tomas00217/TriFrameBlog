@@ -17,6 +17,7 @@ entity BlogPost {
     --
     * title: string
     * text: string
+    image: string
     * created_at: datetime
     * user_id: uuid <<FK>>
 }
