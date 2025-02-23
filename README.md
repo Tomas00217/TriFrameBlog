@@ -35,4 +35,10 @@ A simple blog web application implemented by the three frameworks.
 
 ### Design
 
+#### ER Diagram
+
 ![er-diagram](docs/erd.png)
+
+#### Wireframes
+
+![wireframes](docs/triframeblog_wireframes.png)
