@@ -1,4 +1,84 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1 class="text-lg">Blogs</h1>
+  <h1 class="text-3xl font-bold mb-6">Blogs</h1>
+  <div class="w-full md:w-1/2 mb-6">
+    <input type="text"
+           id="search"
+           name="search"
+           class="w-full p-2 border rounded-lg focus:ring focus:ring-primary outline-none"
+           placeholder="Search blogs by title..."
+           value="{{ request.GET.search|default:'' }}">
+  </div>
+  <div class="overflow-x-auto whitespace-nowrap mb-6">
+    <div class="flex space-x-2">
+      {% for tag in tags %}
+        <button onclick="toggleTag('{{ tag.slug }}')"
+                class="px-4 py-2 rounded-md border {% if tag.slug in selected_tags %}bg-primary text-primary-foreground{% else %}bg-secondary text-secondary-foreground hover:bg-secondary/80{% endif %}">
+          {{ tag.name }}
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+  {% include "blogs/components/blog_list.html" %}
+  <div class="flex justify-center mt-6">
+    <div class="flex items-center space-x-2 bg-card p-2 rounded-lg">
+      {% if blogs.has_previous %}
+        <a href="?{% if request.GET.tag %}tag={{ request.GET.tag }}&{% endif %}page=1"
+           class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">First</a>
+        <a href="?{% if request.GET.tag %}tag={{ request.GET.tag }}&{% endif %}page={{ blogs.previous_page_number }}"
+           class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">Previous</a>
+      {% endif %}
+      <span class="px-4 py-2 bg-primary text-primary-foreground rounded-md">
+        Page {{ blogs.number }} of {{ blogs.paginator.num_pages }}
+      </span>
+      {% if blogs.has_next %}
+        <a href="?{% if request.GET.tag %}tag={{ request.GET.tag }}&{% endif %}page={{ blogs.next_page_number }}"
+           class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">Next</a>
+        <a href="?{% if request.GET.tag %}tag={{ request.GET.tag }}&{% endif %}page={{ blogs.paginator.num_pages }}"
+           class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">Last</a>
+      {% endif %}
+    </div>
+  </div>
+  <script>
+    let debounceTimer;
+
+    document.getElementById("search").addEventListener("input", function() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        updateSearchURL();
+      }, 500);
+    });
+
+    function updateSearchURL() {
+      const search = document.getElementById("search").value;
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (search) {
+        urlParams.set('search', search);
+      } else {
+        urlParams.delete('search');
+      }
+
+      window.location.search = urlParams.toString();
+    }
+
+    function toggleTag(tag) {
+      const urlParams = new URLSearchParams(window.location.search);
+      let tags = urlParams.get('tag') ? urlParams.get('tag').split(',') : [];
+
+      if (tags.includes(tag)) {
+        tags = tags.filter(t => t !== tag);
+      } else {
+        tags.push(tag);
+      }
+
+      if (tags.length > 0) {
+        urlParams.set('tag', tags.join(','));
+      } else {
+        urlParams.delete('tag');
+      }
+
+      window.location.search = urlParams.toString();
+    }
+  </script>
 {% endblock content %}

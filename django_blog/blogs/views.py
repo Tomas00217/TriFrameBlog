@@ -4,6 +4,7 @@ from django.http import Http404
 from .forms import BlogPostForm
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 def index(request):
     blogs = BlogPost.objects.order_by("-created_at")[:3]
@@ -12,9 +13,25 @@ def index(request):
     return render(request, "blogs/index.html", {"blogs": blogs, "tags": tags})
 
 def blogs(request):
-    blogs = BlogPost.objects.all()
+    blog_list = BlogPost.objects.all()
+    tags = Tag.objects.all()
+    tag_slugs = request.GET.get('tag', '')
+    tag_slugs_list = []
 
-    return render(request, "blogs/blogs.html", {"blogs": blogs})
+    if tag_slugs:
+        tag_slugs_list = tag_slugs.split(',')
+        blog_list = blog_list.filter(tags__slug__in=tag_slugs_list).distinct()
+
+    search = request.GET.get('search')
+
+    if search:
+        blog_list = blog_list.filter(title__icontains=search).distinct()
+
+    paginator = Paginator(blog_list, 3)
+    page = request.GET.get('page')
+    blogs = paginator.get_page(page)
+
+    return render(request, "blogs/blogs.html", {"blogs": blogs, "tags": tags, "selected_tags": tag_slugs_list})
 
 @login_required(login_url='/accounts/login/')
 def create(request):

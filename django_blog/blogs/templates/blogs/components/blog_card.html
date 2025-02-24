@@ -10,8 +10,6 @@
   <p class="font-semibold my-2">
     {% for tag in blog.tags.all %}
       <span class="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">{{ tag.name }}</span>
-    {% empty %}
-      <span class="text-secondary-foreground">No Tags</span>
     {% endfor %}
   </p>
   <p class="line-clamp-3 mb-2">{{ blog.content | striptags | truncatechars:200 }}</p>
