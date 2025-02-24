@@ -9,8 +9,6 @@ def index(request):
     blogs = BlogPost.objects.order_by("-created_at")[:3]
     tags = Tag.objects.all()
 
-    print(blogs[0].tags.all())
-
     return render(request, "blogs/index.html", {"blogs": blogs, "tags": tags})
 
 def blogs(request):
