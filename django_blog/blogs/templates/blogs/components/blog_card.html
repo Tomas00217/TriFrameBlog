@@ -1,0 +1,20 @@
+<div class="bg-card border text-card-foreground p-4 rounded-lg shadow-lg flex flex-col">
+  {% if blog.image %}
+    <img src="{{ blog.image.url }}"
+         alt="{{ blog.title }}"
+         height="192"
+         width="192"
+         class="w-full h-48 object-cover rounded-t-lg">
+  {% endif %}
+  <h3 class="text-xl text-primary font-semibold mt-2">{{ blog.title }}</h3>
+  <p class="font-semibold my-2">
+    {% for tag in blog.tags.all %}
+      <span class="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">{{ tag.name }}</span>
+    {% empty %}
+      <span class="text-secondary-foreground">No Tags</span>
+    {% endfor %}
+  </p>
+  <p class="line-clamp-3 mb-2">{{ blog.content | striptags | truncatechars:200 }}</p>
+  <a href="{% url 'detail' blog.id %}"
+     class="w-auto ml-auto hover:bg-primary/90 bg-primary p-2 rounded-lg text-primary-foreground mt-auto">Read More</a>
+</div>

@@ -4,7 +4,7 @@ hide circle
 skinparam Linetype ortho
 
 entity User {
-    * id: uuid
+    * id: int
     --
     * username: string
     * email: string
@@ -13,7 +13,7 @@ entity User {
 }
 
 entity BlogPost {
-    * id: uuid
+    * id: int
     --
     * title: string
     * text: string
@@ -23,14 +23,14 @@ entity BlogPost {
 }
 
 entity Tag {
-    * id: uuid
+    * id: int
     --
     * name: string
 }
 
 entity BlogPostTag {
-    * blog_id: uuid <<FK>>
-    * tag_id: uuid <<FK>>
+    * blog_id: int <<FK>>
+    * tag_id: int <<FK>>
 }
 
 User ||--o{ BlogPost

@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +77,13 @@ DATABASES = {
     }
 }
 
+# File storage
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ["CLOUDINARY_CLOUD_NAME"],
+    'API_KEY': os.environ["CLOUDINARY_API_KEY"],
+    'API_SECRET': os.environ["CLOUDINARY_API_SECRET"]
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Password validation
 
@@ -115,6 +124,8 @@ STATICFILES_DIRS = [
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Auth
 
 LOGIN_REDIRECT_URL = "index"
 LOGOUT_REDIRECT_URL = "index"

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="text-xl font-bold">Create new blog</h1>
+  <form method="post"
+        class="mt-4 gap-4 flex flex-col"
+        onsubmit="updateContent()"
+        enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="flex flex-col w-3/4">
+      <label for="{{ form.title.id_for_label }}" class="text-sm font-medium">Title:</label>
+      <input type="text"
+             name="{{ form.title.name }}"
+             id="{{ form.title.id_for_label }}"
+             class="text-sm p-2 rounded-md border border-input"
+             placeholder="Enter title"
+             value="{{ form.title.value|default:'' }}"
+             required>
+      {% if form.title.errors %}<p class="text-red-500 text-sm">{{ form.title.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="flex flex-col w-3/4">
+      <fieldset>
+        <legend class="text-sm font-medium">Tags:</legend>
+        <div id="{{ form.tags.id_for_label }}" class="flex gap-2">
+          {% for tag in form.tags %}{{ tag }}{% endfor %}
+        </div>
+        {% if form.tags.errors %}<p class="text-red-500 text-sm">{{ form.tags.errors.0 }}</p>{% endif %}
+      </fieldset>
+    </div>
+    <div class="flex flex-col w-3/4">
+      <label for="{{ form.image.id_for_label }}" class="text-sm font-medium">Image:</label>
+      <input type="file"
+             name="{{ form.image.name }}"
+             id="{{ form.image.id_for_label }}"
+             class="text-sm p-2 rounded-md border border-input bg-white"
+             placeholder="Select an image"
+             value="{{ form.image.value|default:'' }}"
+             accept="image/png, image/jpeg">
+      {% if form.image.errors %}<p class="text-red-500 text-sm">{{ form.image.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="flex flex-col">
+      <label class="text-sm font-medium">Content:</label>
+      <div id="editor" class="bg-white"></div>
+      <input type="hidden" name="{{ form.content.name }}" id="hidden-content">
+      {% if form.content.errors %}<p class="text-red-500 text-sm">{{ form.content.errors.0 }}</p>{% endif %}
+    </div>
+    <button type="submit"
+            class="bg-primary p-1 rounded-lg text-primary-foreground w-36 ml-auto">Create</button>
+  </form>
+  <script>
+    var quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+
+    function updateContent() {
+      document.querySelector("#hidden-content").value = quill.root.innerHTML;
+    }
+  </script>
+{% endblock content %}
