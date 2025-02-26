@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <section>
+    <h1 class="text-3xl text-primary font-bold">{{ blog.title }}</h1>
+    <div class="flex items-center text-sm gap-2">
+      <span class="font-medium">{{ blog.author.username|default:blog.author.email }}</span>
+      <span class="text-xs">{{ blog.created_at|date:"F d, Y" }}</span>
+    </div>
+    {% if blog.image %}
+      <img src="{{ blog.image.url }}"
+           alt="{{ blog.title }}"
+           width="800"
+           height="400"
+           class="w-full h-96 object-cover rounded-lg mt-6 shadow-lg">
+    {% endif %}
+    <div class="mt-6">
+      {% for tag in blog.tags.all %}
+        <span class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    <article class="prose prose-p:m-0 prose-headings:mt-4 prose-headings:mb-1 max-w-none py-6">{{ blog.content | safe }}</article>
+  </section>
+  <section>
+    <h2 class="text-2xl font-bold py-6">More like this</h2>
+    {% include "blogs/components/blog_list.html" with blogs=related_blogs %}
+  </section>
+{% endblock content %}

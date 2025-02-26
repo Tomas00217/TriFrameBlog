@@ -27,6 +27,9 @@
             </li>
             {% if user.is_authenticated %}
               <li>
+                <a href="{% url 'my_blogs' %}">My blogs</a>
+              </li>
+              <li>
                 <a href="/">Profile</a>
               </li>
             {% endif %}

@@ -27,11 +27,17 @@ def blogs(request):
     if search:
         blog_list = blog_list.filter(title__icontains=search).distinct()
 
-    paginator = Paginator(blog_list, 3)
+    paginator = Paginator(blog_list, 6)
     page = request.GET.get('page')
     blogs = paginator.get_page(page)
 
     return render(request, "blogs/blogs.html", {"blogs": blogs, "tags": tags, "selected_tags": tag_slugs_list})
+
+@login_required(login_url='/accounts/login/')
+def my_blogs(request):
+    blogs = BlogPost.objects.filter(author=request.user)
+
+    return render(request, "blogs/my_blogs.html", {"blogs": blogs})
 
 @login_required(login_url='/accounts/login/')
 def create(request):
@@ -58,6 +64,8 @@ def create(request):
 def detail(request, blog_id):
     try:
         blog = BlogPost.objects.get(pk=blog_id)
+        related_blogs = BlogPost.objects.filter(tags__in=blog.tags.all()).exclude(pk=blog.pk).distinct().order_by("?")[:3]
+
     except BlogPost.DoesNotExist:
         raise Http404("Blog does not exist")
-    return render(request, "blogs/detail.html", {"blog": blog})
+    return render(request, "blogs/detail.html", {"blog": blog, "related_blogs": related_blogs})
