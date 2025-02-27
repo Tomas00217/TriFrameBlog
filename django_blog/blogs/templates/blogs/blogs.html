@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
   <h1 class="text-3xl font-bold mb-6">Blogs</h1>
   <div class="w-full md:w-1/2 mb-6">
@@ -39,46 +40,7 @@
       {% endif %}
     </div>
   </div>
-  <script>
-    let debounceTimer;
-
-    document.getElementById("search").addEventListener("input", function() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        updateSearchURL();
-      }, 500);
-    });
-
-    function updateSearchURL() {
-      const search = document.getElementById("search").value;
-      const urlParams = new URLSearchParams(window.location.search);
-
-      if (search) {
-        urlParams.set('search', search);
-      } else {
-        urlParams.delete('search');
-      }
-
-      window.location.search = urlParams.toString();
-    }
-
-    function toggleTag(tag) {
-      const urlParams = new URLSearchParams(window.location.search);
-      let tags = urlParams.get('tag') ? urlParams.get('tag').split(',') : [];
-
-      if (tags.includes(tag)) {
-        tags = tags.filter(t => t !== tag);
-      } else {
-        tags.push(tag);
-      }
-
-      if (tags.length > 0) {
-        urlParams.set('tag', tags.join(','));
-      } else {
-        urlParams.delete('tag');
-      }
-
-      window.location.search = urlParams.toString();
-    }
-  </script>
 {% endblock content %}
+{% block scripts %}
+  <script src="{% static 'js/blog/blogs.js' %}"></script>
+{% endblock scripts %}

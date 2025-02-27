@@ -1,0 +1,66 @@
+<form method="post"
+      class="mt-4 gap-4 flex flex-col"
+      onsubmit="updateContent()"
+      enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="flex flex-col w-full lg:w-3/4">
+    <label for="{{ form.title.id_for_label }}" class="text-sm font-medium">Title:</label>
+    <input type="text"
+           name="{{ form.title.name }}"
+           id="{{ form.title.id_for_label }}"
+           class="text-sm p-2 rounded-md border border-input"
+           placeholder="Enter title"
+           value="{{ form.title.value|default:'' }}"
+           required>
+    {% if form.title.errors %}<p class="text-red-500 text-sm">{{ form.title.errors.0 }}</p>{% endif %}
+  </div>
+  <div class="flex flex-col w-full">
+    <fieldset>
+      <legend class="text-sm font-medium">Tags:</legend>
+      <div id="{{ form.tags.id_for_label }}" class="flex gap-2">
+        {% for tag in form.tags %}{{ tag }}{% endfor %}
+      </div>
+      {% if form.tags.errors %}<p class="text-red-500 text-sm">{{ form.tags.errors.0 }}</p>{% endif %}
+    </fieldset>
+  </div>
+  <div class="flex flex-col w-full lg:w-3/4">
+    <label for="{{ form.image.id_for_label }}"
+           class="cursor-pointer text-sm font-medium w-fit">
+      Image:
+      <div id="placeholder-text"
+           class="w-48 h-48 bg-secondary flex items-center justify-center {% if form.instance.image %}hidden{% endif %}">
+        <span>Click to select an image</span>
+      </div>
+      <img class="w-48 h-48 object-cover {% if not form.instance.image %}hidden{% endif %}"
+           id="image-preview"
+           src="{% if form.instance.image %}{{ form.instance.image.url }}{% else %}#{% endif %}"
+           alt="Image Preview"
+           width="192"
+           height="192" />
+    </label>
+    <input type="file"
+           name="{{ form.image.name }}"
+           id="{{ form.image.id_for_label }}"
+           class="text-sm p-2 rounded-md border border-input bg-white hidden"
+           accept="image/png, image/jpeg"
+           onchange="previewImage(event)">
+    {% if form.image.errors %}<p class="text-red-500 text-sm">{{ form.image.errors.0 }}</p>{% endif %}
+  </div>
+  <div class="flex flex-col">
+    <label class="text-sm font-medium">Content:</label>
+    <div id="editor" class="bg-white"></div>
+    <input type="hidden"
+           name="{{ form.content.name }}"
+           id="hidden-content"
+           value="{{ form.content.value|default:'' }}" />
+    {% if form.content.errors %}<p class="text-red-500 text-sm">{{ form.content.errors.0 }}</p>{% endif %}
+  </div>
+  <button type="submit"
+          class="bg-primary p-1 rounded-lg text-primary-foreground w-36 ml-auto">
+    {% if blog %}
+      Update
+    {% else %}
+      Create
+    {% endif %}
+  </button>
+</form>

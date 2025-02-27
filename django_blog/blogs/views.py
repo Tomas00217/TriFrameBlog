@@ -1,10 +1,10 @@
 import bleach
 from blogs.models import BlogPost, Tag
-from django.http import Http404
 from .forms import BlogPostForm
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.core.exceptions import PermissionDenied
 
 def index(request):
     blogs = BlogPost.objects.order_by("-created_at")[:3]
@@ -54,18 +54,40 @@ def create(request):
             blog_post.save()
             form.save_m2m()
 
-            return redirect("blogs")
-        print(form)
+            return redirect("detail", blog_id=blog_post.pk)
     else:
         form = BlogPostForm()
 
     return render(request, "blogs/create.html", {"form": form})
 
-def detail(request, blog_id):
-    try:
-        blog = BlogPost.objects.get(pk=blog_id)
-        related_blogs = BlogPost.objects.filter(tags__in=blog.tags.all()).exclude(pk=blog.pk).distinct().order_by("?")[:3]
+@login_required(login_url='/accounts/login/')
+def edit(request, blog_id):
+    blog = get_object_or_404(BlogPost, pk=blog_id)
 
-    except BlogPost.DoesNotExist:
-        raise Http404("Blog does not exist")
+    if request.user != blog.author and not request.user.is_staff:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        form = BlogPostForm(request.POST, request.FILES, instance=blog)
+        if form.is_valid():
+            blog_post = form.save(commit=False)
+            blog_post.content = bleach.clean(
+                form.cleaned_data["content"],
+                tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
+                attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
+            )
+            blog_post.save()
+            form.save_m2m()
+
+            return redirect("detail", blog_id=blog_post.pk)
+    else:
+        form = BlogPostForm(instance=blog)
+
+    return render(request, "blogs/edit.html", {"form": form, "blog": blog})
+
+
+def detail(request, blog_id):
+    blog = get_object_or_404(BlogPost, pk=blog_id)
+    related_blogs = BlogPost.objects.filter(tags__in=blog.tags.all()).exclude(pk=blog.pk).distinct().order_by("?")[:3]
+
     return render(request, "blogs/detail.html", {"blog": blog, "related_blogs": related_blogs})
