@@ -1,0 +1,39 @@
+<nav class="bg-primary text-primary-foreground py-4 px-8">
+  {% block navbar %}
+    <div class="flex justify-between">
+      <ul class="flex gap-4">
+        <li>
+          <a href="{% url 'index' %}">Home</a>
+        </li>
+        <li>
+          <a href="{% url 'blogs' %}">Blogs</a>
+        </li>
+        {% if user.is_authenticated %}
+          <li>
+            <a href="{% url 'my_blogs' %}">My blogs</a>
+          </li>
+          <li>
+            <a href="/">Profile</a>
+          </li>
+        {% endif %}
+      </ul>
+      <ul class="flex gap-4">
+        {% if user.is_authenticated %}
+          <li>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit">Log Out</button>
+            </form>
+          </li>
+        {% else %}
+          <li>
+            <a href="{% url 'login' %}">Login</a>
+          </li>
+          <li>
+            <a href="{% url 'register' %}">Register</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endblock navbar %}
+</nav>
