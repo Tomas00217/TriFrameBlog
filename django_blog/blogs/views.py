@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 def index(request):
     blogs = BlogPost.objects.order_by("-created_at")[:3]
@@ -35,7 +36,11 @@ def blogs(request):
 
 @login_required(login_url='/accounts/login/')
 def my_blogs(request):
-    blogs = BlogPost.objects.filter(author=request.user)
+    blog_list = BlogPost.objects.filter(author=request.user)
+
+    paginator = Paginator(blog_list, 6)
+    page = request.GET.get('page')
+    blogs = paginator.get_page(page)
 
     return render(request, "blogs/my_blogs.html", {"blogs": blogs})
 
@@ -54,6 +59,7 @@ def create(request):
             blog_post.save()
             form.save_m2m()
 
+            messages.success(request, "Blog created successfully.")
             return redirect("detail", blog_id=blog_post.pk)
     else:
         form = BlogPostForm()
@@ -79,12 +85,27 @@ def edit(request, blog_id):
             blog_post.save()
             form.save_m2m()
 
+            messages.success(request, "Blog updated successfully.")
             return redirect("detail", blog_id=blog_post.pk)
     else:
         form = BlogPostForm(instance=blog)
 
     return render(request, "blogs/edit.html", {"form": form, "blog": blog})
 
+@login_required(login_url='/accounts/login')
+def delete(request, blog_id):
+    blog = get_object_or_404(BlogPost, pk=blog_id)
+    
+    if request.user != blog.author and not request.user.is_staff:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        blog.delete()
+
+        messages.success(request, "Blog deleted successfully.")
+        return redirect("my_blogs")
+    
+    return render(request, "blogs/delete.html", {"blog": blog})
 
 def detail(request, blog_id):
     blog = get_object_or_404(BlogPost, pk=blog_id)

@@ -1,6 +1,6 @@
 from .forms import EmailUserCreationForm
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 
 def register(request):
@@ -9,6 +9,8 @@ def register(request):
         
         if form.is_valid():
             form.save()
+
+            messages.success(request, "Register successful.")
             return redirect("login")
     else:
         form = EmailUserCreationForm()
