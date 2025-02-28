@@ -4,8 +4,6 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 class EmailUser(AbstractBaseUser, PermissionsMixin):
-    first_name = models.CharField(max_length=25, blank=True, null=True)
-    last_name = models.CharField(max_length=25, blank=True, null=True)
     username = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(max_length=100, unique=True)
     password = models.CharField(max_length=255)
