@@ -1,4 +1,4 @@
-<div class="bg-card border text-card-foreground p-4 rounded-lg shadow-lg flex flex-col">
+<div class="bg-card border border-accent text-card-foreground p-4 rounded-lg shadow-lg flex flex-col min-h-[400px]">
   {% if blog.image %}
     <img src="{{ blog.image.url }}"
          alt="{{ blog.title }}"
@@ -6,22 +6,22 @@
          width="192"
          class="w-full h-48 object-cover rounded-t-lg">
   {% endif %}
-  <h3 class="text-xl text-primary font-semibold mt-2">{{ blog.title }}</h3>
+  <h3 class="text-xl text-primary font-semibold mt-2 line-clamp-2">{{ blog.title }}</h3>
   <p class="font-semibold my-2">
     {% for tag in blog.tags.all %}
       <span class="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">{{ tag.name }}</span>
     {% endfor %}
   </p>
-  <p class="line-clamp-3 mb-2">{{ blog.content | striptags | truncatechars:200 }}</p>
+  <p class="line-clamp-3 mb-2 flex-grow">{{ blog.content | striptags }}</p>
   <div class="flex justify-between mt-auto">
     <a href="{% url 'detail' blog.id %}"
        class="w-auto ml-auto hover:bg-primary/80 bg-primary px-3 py-2 mr-2 rounded-lg text-primary-foreground mt-auto">Read More</a>
     {% if show_actions %}
       <div class="flex space-x-2">
         <a href="{% url 'edit' blog.id %}"
-           class="bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg">Edit</a>
+           class="bg-teal-500 hover:bg-teal-600 text-primary-foreground px-3 py-2 rounded-lg">Edit</a>
         <a href="{% url 'delete' blog.id %}"
-           class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg">Delete</a>
+           class="bg-red-600 hover:bg-red-700 text-primary-foreground px-3 py-2 rounded-lg">Delete</a>
       </div>
     {% endif %}
   </div>

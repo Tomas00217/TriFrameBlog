@@ -37,6 +37,7 @@ A simple blog web application implemented by the three frameworks.
 ### Design
 
 This is the base ER diagram that all implementations should fulfill. However, tables related to authentication might vary based on the framework.
+
 ![er-diagram](docs/erd.png)
 
 #### Wireframes
