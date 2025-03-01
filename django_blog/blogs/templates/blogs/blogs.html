@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <h1 class="text-3xl font-bold mb-6">Blogs</h1>
+  <div class="w-full md:w-1/2 mb-6">
+    <input type="text"
+           id="search"
+           name="search"
+           class="w-full p-2 border border-input rounded-lg"
+           placeholder="Search blogs by title..."
+           value="{{ request.GET.search|default:'' }}">
+  </div>
+  <div class="overflow-x-auto whitespace-nowrap mb-6">
+    <div class="flex space-x-2">
+      {% for tag in tags %}
+        <button onclick="toggleTag('{{ tag.slug }}')"
+                class="px-4 py-2 rounded-md border {% if tag.slug in selected_tags %}bg-primary text-primary-foreground{% else %}bg-secondary text-secondary-foreground hover:bg-secondary/80{% endif %}">
+          {{ tag.name }}
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+  {% include "blogs/components/blog_list.html" %}
+  {% include "blogs/components/blog_pagination.html" %}
+{% endblock content %}
+{% block scripts %}
+  <script src="{% static 'js/blog/blogs.js' %}"></script>
+{% endblock scripts %}

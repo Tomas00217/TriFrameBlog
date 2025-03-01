@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <h1 class="text-3xl font-bold">Editing blog {{ blog.title }}</h1>
+  {% include "blogs/components/blog_form.html" %}
+{% endblock content %}
+{% block scripts %}
+  <script src="{% static 'js/blog/form.js' %}"></script>
+{% endblock scripts %}
