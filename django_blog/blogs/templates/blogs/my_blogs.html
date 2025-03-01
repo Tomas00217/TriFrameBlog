@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-  <section class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-primary">My Blogs</h1>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">My Blogs</h1>
     <a href="{% url 'create' %}"
        class="bg-primary hover:bg-primary/80 text-primary-foreground px-4 py-2 rounded-lg shadow">Create Blog</a>
-  </section>
-  <section>
+  </div>
+  <div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for blog in blogs %}
         {% include "blogs/components/blog_card.html" with show_actions=True %}
@@ -19,5 +19,5 @@
       {% endfor %}
     </div>
     {% include "blogs/components/blog_pagination.html" %}
-  </section>
+  </div>
 {% endblock content %}

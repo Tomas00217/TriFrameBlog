@@ -34,6 +34,12 @@ def blogs(request):
 
     return render(request, "blogs/blogs.html", {"blogs": blogs, "tags": tags, "selected_tags": tag_slugs_list})
 
+def detail(request, blog_id):
+    blog = get_object_or_404(BlogPost, pk=blog_id)
+    related_blogs = BlogPost.objects.filter(tags__in=blog.tags.all()).exclude(pk=blog.pk).distinct().order_by("?")[:3]
+
+    return render(request, "blogs/detail.html", {"blog": blog, "related_blogs": related_blogs})
+
 @login_required(login_url='/accounts/login/')
 def my_blogs(request):
     blog_list = BlogPost.objects.filter(author=request.user)
@@ -106,9 +112,3 @@ def delete(request, blog_id):
         return redirect("my_blogs")
     
     return render(request, "blogs/delete.html", {"blog": blog})
-
-def detail(request, blog_id):
-    blog = get_object_or_404(BlogPost, pk=blog_id)
-    related_blogs = BlogPost.objects.filter(tags__in=blog.tags.all()).exclude(pk=blog.pk).distinct().order_by("?")[:3]
-
-    return render(request, "blogs/detail.html", {"blog": blog, "related_blogs": related_blogs})
