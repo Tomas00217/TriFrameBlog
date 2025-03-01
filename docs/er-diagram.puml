@@ -9,6 +9,8 @@ entity User {
     * username: string
     * email: string
     * password_hash: string
+    * is_active: boolean
+    * is_staff: boolean
     * created_at: datetime
 }
 

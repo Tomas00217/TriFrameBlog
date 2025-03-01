@@ -18,7 +18,8 @@ A simple blog web application implemented by the three frameworks.
 
 ### Functional requirements
 
-- Users can register with a username, email, and password.
+- Users can register with an email, and password.
+- Users can set their username on their profile.
 - Users can log in using their email and password.
 - All users can view list of blogs.
 - All users can view the detail page of a blog.
