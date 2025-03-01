@@ -6,15 +6,15 @@
     <div>
       <label class="text-sm font-medium text-gray-700">Email:</label>
       <input type="email"
-             value="{{ user.email }}"
+             value="{{ request.user.email }}"
              class="text-sm p-2 rounded-md border border-input w-full bg-gray-100 cursor-not-allowed"
              readonly>
     </div>
     <div>
-      <label class="text-sm font-medium">Username:</label>
+      <label for="{{ form.username.id_for_label }}" class="text-sm font-medium">Username:</label>
       <input type="text"
-             name="username"
-             value="{{ request.user.username }}"
+             name="{{ form.username.name }}"
+             value="{{ form.username.value|default:'' }}"
              class="text-sm p-2 rounded-md border border-input w-full">
     </div>
     <button type="submit"

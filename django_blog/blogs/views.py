@@ -21,7 +21,8 @@ def blogs(request):
 
     if tag_slugs:
         tag_slugs_list = tag_slugs.split(',')
-        blog_list = blog_list.filter(tags__slug__in=tag_slugs_list).distinct()
+        for tag_slug in tag_slugs_list:
+            blog_list = blog_list.filter(tags__slug=tag_slug)
 
     search = request.GET.get('search')
 
