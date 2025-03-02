@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from flask import Flask
 from flask_blog.config import Config
 from flask_bcrypt import Bcrypt
@@ -30,3 +31,7 @@ login_manager.login_message_category = "danger"
 @login_manager.user_loader
 def load_user(user_id):
     return EmailUser.query.get(int(user_id))
+
+@app.template_filter("striptags")
+def striptags(value):
+    return BeautifulSoup(value, "html.parser").get_text()
