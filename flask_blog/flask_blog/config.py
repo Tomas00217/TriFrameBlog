@@ -9,5 +9,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 class Config:
     SECRET_KEY = os.environ["SECRET_KEY"]
     SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URI"]
+    SQLALCHEMY_ENGINE_OPTIONS = {"future": True}
 
     STATIC_FOLDER = BASE_DIR.parent / 'shared' / 'static'
