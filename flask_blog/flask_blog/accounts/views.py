@@ -24,7 +24,7 @@ def login():
             flash("Login successful.", "success")
             return redirect(next_page or url_for("blogs.index"))
         else:
-            form.email.errors.append("Invalid email and/or password.")
+            form.email.errors.append("Your email and password did not match. Please try again.")
 
     return render_template("accounts/login.html", form=form, next=next_page)
 

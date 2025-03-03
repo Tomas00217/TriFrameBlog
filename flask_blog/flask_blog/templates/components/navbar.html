@@ -1,36 +1,36 @@
 <nav class="bg-primary text-primary-foreground py-4 px-8">
   {% block navbar %}
-  <div class="flex justify-between">
-    <ul class="flex gap-4">
-      <li>
-        <a href="/">Home</a>
-      </li>
-      <li>
-        <a href="/">Blogs</a>
-      </li>
-      {% if current_user.is_authenticated %}
+    <div class="flex justify-between">
+      <ul class="flex gap-4">
         <li>
-          <a href="">My blogs</a>
+          <a href="/">Home</a>
         </li>
         <li>
-          <a href="">Profile</a>
+          <a href="/">Blogs</a>
         </li>
-      {% endif %}
-    </ul>
-    <ul class="flex gap-4">
-      {% if current_user.is_authenticated %}
-        <li>
-          <a href="{{ url_for('accounts.logout') }}">Logout</a>
-        </li>
-      {% else %}
-        <li>
-          <a href="{{ url_for('accounts.login') }}">Login</a>
-        </li>
-        <li>
-          <a href="{{ url_for('accounts.register') }}">Register</a>
-        </li>
-      {% endif %}
-    </ul>
-  </div>
+        {% if current_user.is_authenticated %}
+          <li>
+            <a href="">My blogs</a>
+          </li>
+          <li>
+            <a href="">Profile</a>
+          </li>
+        {% endif %}
+      </ul>
+      <ul class="flex gap-4">
+        {% if current_user.is_authenticated %}
+          <li>
+            <a href="{{ url_for("accounts.logout") }}">Logout</a>
+          </li>
+        {% else %}
+          <li>
+            <a href="{{ url_for("accounts.login") }}">Login</a>
+          </li>
+          <li>
+            <a href="{{ url_for("accounts.register") }}">Register</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
   {% endblock navbar %}
 </nav>
