@@ -1,9 +1,37 @@
-from .forms import EmailUserCreationForm, UsernameUpdateForm
+from .forms import EmailUserCreationForm, EmailUserLoginForm, UsernameUpdateForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+
+def email_login(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already logged in.")
+        return redirect("index")
+
+    if request.method == "POST":
+        form = EmailUserLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, email=email, password=password)
+
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Login successful.")
+                return redirect("index")
+            else:
+                form.add_error(None, "Your email and password did not match. Please try again.")
+    else:
+        form = EmailUserLoginForm()
+
+    return render(request, "registration/login.html", {"form": form})
 
 def register(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already registered.")
+        return redirect("index")
+
     if request.method == "POST":
         form = EmailUserCreationForm(request.POST)
         
