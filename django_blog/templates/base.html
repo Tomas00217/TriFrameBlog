@@ -21,7 +21,7 @@
       {% endblock content %}
       <div id="toast-container" class="fixed top-16 right-5 z-50 space-y-2">
         {% for message in messages %}
-          <div class="toast-message px-4 py-3 rounded-lg shadow-md text-white {% if message.tags == 'success' %}bg-green-500 {% elif message.tags == 'error' %}bg-red-500 {% endif %}">
+          <div class="toast-message px-4 py-3 rounded-lg shadow-md text-white {% if message.tags == 'success' %}bg-green-500 {% elif message.tags == 'error' %}bg-red-500 {% elif message.tags == 'info' %}bg-blue-500 {% endif %}">
             <span>{{ message }}</span>
           </div>
         {% endfor %}
