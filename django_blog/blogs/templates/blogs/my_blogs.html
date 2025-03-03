@@ -7,17 +7,19 @@
        class="bg-primary hover:bg-primary/80 text-primary-foreground px-4 py-2 rounded-lg shadow">Create Blog</a>
   </div>
   <div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {% for blog in blogs %}
-        {% include "blogs/components/blog_card.html" with show_actions=True %}
-      {% empty %}
-        <p class="text-center text-lg text-muted-foreground mt-6 col-span-full">
-          You have no blogs yet,
-          <a href="{% url 'create' %}"
-             class="text-primary font-semibold hover:underline">create one here.</a>
-        </p>
-      {% endfor %}
-    </div>
-    {% include "blogs/components/blog_pagination.html" %}
+    {% if blogs %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for blog in blogs %}
+          {% include "blogs/components/blog_card.html" with show_actions=True %}
+        {% endfor %}
+      </div>
+      {% include "blogs/components/blog_pagination.html" %}
+    {% else %}
+      <p class="text-center text-lg text-muted-foreground mt-6 col-span-full">
+        You have no blogs yet,
+        <a href="{% url 'create' %}"
+           class="text-primary font-semibold hover:underline">create one here.</a>
+      </p>
+    {% endif %}
   </div>
 {% endblock content %}
