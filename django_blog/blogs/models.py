@@ -24,5 +24,8 @@ class BlogPost(models.Model):
     tags = models.ManyToManyField(Tag, related_name="blog_posts")
     author = models.ForeignKey(EmailUser, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def __str__(self):
         return self.title

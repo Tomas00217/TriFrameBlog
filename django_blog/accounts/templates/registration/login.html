@@ -14,9 +14,9 @@
     <form method="post" class="flex flex-col gap-4 py-4 text-left">
       {% csrf_token %}
       <div class="flex flex-col w-3/4 m-auto">
-        <label for="{{ form.username.id_for_label }}" class="text-sm font-medium ">Email:</label>
+        <label for="{{ form.email.id_for_label }}" class="text-sm font-medium ">Email:</label>
         <input type="text"
-               name="{{ form.username.name }}"
+               name="{{ form.email.name }}"
                id="{{ form.username.id_for_label }}"
                class="text-sm p-2 rounded-md border border-input"
                placeholder="Enter email"
@@ -40,7 +40,11 @@
     class="text-primary hover:text-primary/80 hover:underline">Register now!</a>
     </p>
     {% if form.errors %}
-      <p class="text-red-500 text-sm">Your username and password didn't match. Please try again.</p>
+    {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+          <p class="text-red-500 text-sm">{{ error }}</p>
+        {% endfor %}
+      {% endfor %}
     {% endif %}
   </div>
 {% endblock content %}
