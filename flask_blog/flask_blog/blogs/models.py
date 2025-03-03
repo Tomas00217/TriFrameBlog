@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from typing import Optional, List
 from flask_blog import db
-from sqlalchemy import DateTime, ForeignKey, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy import DateTime, ForeignKey, String, Text, desc
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates, Query
 from slugify import slugify
 from flask_blog.accounts.models import EmailUser
 

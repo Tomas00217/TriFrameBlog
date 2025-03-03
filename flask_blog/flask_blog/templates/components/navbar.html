@@ -3,14 +3,14 @@
     <div class="flex justify-between">
       <ul class="flex gap-4">
         <li>
-          <a href="/">Home</a>
+          <a href="{{ url_for("blogs.index") }}">Home</a>
         </li>
         <li>
-          <a href="/">Blogs</a>
+          <a href="{{ url_for("blogs.blogs") }}">Blogs</a>
         </li>
         {% if current_user.is_authenticated %}
           <li>
-            <a href="">My blogs</a>
+            <a href="{{ url_for("blogs.my_blogs") }}">My blogs</a>
           </li>
           <li>
             <a href="">Profile</a>
