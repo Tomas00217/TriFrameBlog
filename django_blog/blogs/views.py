@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
 def index(request):
-    blogs = BlogPost.objects.order_by("-created_at")[:3]
+    blogs = BlogPost.objects.all()[:3]
     tags = Tag.objects.all()
 
     return render(request, "blogs/index.html", {"blogs": blogs, "tags": tags})
@@ -99,7 +99,7 @@ def edit(request, blog_id):
 
     return render(request, "blogs/edit.html", {"form": form, "blog": blog})
 
-@login_required(login_url='/accounts/login')
+@login_required(login_url='/accounts/login/')
 def delete(request, blog_id):
     blog = get_object_or_404(BlogPost, pk=blog_id)
     
