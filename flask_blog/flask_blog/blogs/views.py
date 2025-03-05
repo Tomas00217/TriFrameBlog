@@ -130,7 +130,6 @@ def edit(blog_id):
 
         blog.title = form.title.data
 
-        print(form.tags.data)
         selected_tags = Tag.query.filter(Tag.id.in_(form.tags.data)).all()
         blog.tags = selected_tags
 
