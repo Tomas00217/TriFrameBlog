@@ -1,8 +1,12 @@
-from flask import render_template, request
+import bleach
+import cloudinary.uploader
+from flask import flash, redirect, render_template, request, url_for
 from flask import Blueprint
+from flask_blog import db
 from flask_blog.blogs.models import Tag, BlogPost
 from flask_login import current_user, login_required
 from sqlalchemy import func
+from .forms import BlogPostForm
 
 blogs_bp = Blueprint("blogs", __name__, template_folder="templates")
 
@@ -24,7 +28,7 @@ def blogs():
     if tag_slugs:
         tag_slugs_list = tag_slugs.split(',')
         for tag_slug in tag_slugs_list:
-            blog_list = blog_list.filter(Tag.slug == tag_slug)
+            blog_list = blog_list.filter(BlogPost.tags.any(Tag.slug == tag_slug))
 
     search = request.args.get('search')
 
@@ -59,3 +63,41 @@ def my_blogs():
     blogs = blog_list.paginate(per_page=6)
 
     return render_template("my_blogs.html", blogs=blogs)
+
+@blogs_bp.route("/blog/create", methods=["GET", "POST"])
+@login_required
+def create():
+    form = BlogPostForm(request.form)
+
+    if form.validate_on_submit():
+        content = bleach.clean(
+            form.content.data,
+            tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
+            attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
+        )
+
+        image_url = None
+        if "image" in request.files and request.files["image"].filename:
+            image_file = request.files["image"]
+            upload_result = cloudinary.uploader.upload(image_file)
+            image_url = upload_result["secure_url"]
+
+        blog_post = BlogPost(
+            title = form.title.data,
+            content = content,
+            image = image_url,
+            author = current_user
+        )
+
+        db.session.add(blog_post)
+        db.session.flush()
+
+        selected_tags = Tag.query.filter(Tag.id.in_(form.tags.data)).all()
+        blog_post.tags.extend(selected_tags)
+
+        db.session.commit()
+
+        flash("Blog created successfully!", "success")
+        return redirect(url_for("blogs.detail", blog_id=blog_post.id))
+
+    return render_template("create.html", form=form)

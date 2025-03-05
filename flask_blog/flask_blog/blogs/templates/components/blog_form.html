@@ -1,0 +1,60 @@
+<form method="post"
+      class="mt-4 gap-4 flex flex-col"
+      onsubmit="updateContent()"
+      enctype="multipart/form-data">
+  {{ form.csrf_token }}
+  <div class="flex flex-col w-full lg:w-3/4">
+    <label for="{{ form.title.id }}" class="text-sm font-medium">Title:</label>
+    {{ form.title(class="text-sm p-2 rounded-md border border-input", placeholder="Enter title") }}
+    {% if form.title.errors %}<p class="text-red-500 text-sm">{{ form.title.errors.0 }}</p>{% endif %}
+  </div>
+  <div class="flex flex-col w-full">
+    <fieldset>
+      <legend class="text-sm font-medium">Tags:</legend>
+      <div id="{{ form.tags.id }}" class="flex gap-2">
+        {% for tag in form.tags %}
+          <label class="flex items-center space-x-2">
+            {{ tag }}
+            <span>{{ tag.label.text }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      {% if form.tags.errors %}<p class="text-red-500 text-sm">{{ form.tags.errors.0 }}</p>{% endif %}
+    </fieldset>
+  </div>
+  <div class="flex flex-col w-full lg:w-3/4">
+    <label for="{{ form.image.id }}"
+           class="cursor-pointer text-sm font-medium w-fit">
+      Image:
+      <div id="placeholder-text"
+           class="w-48 h-48 bg-secondary flex items-center justify-center {% if form.image.data %}hidden{% endif %}">
+        <span>Click to select an image</span>
+      </div>
+      <img class="w-48 h-48 object-cover {% if not form.image.data %}hidden{% endif %}"
+           id="image-preview"
+           src="{% if form.image.data %}{{ form.image.data }}{% else %}#{% endif %}"
+           alt="Image Preview"
+           width="192"
+           height="192" />
+    </label>
+    {{ form.image(class="text-sm p-2 rounded-md border border-input bg-white hidden", accept="image/png, image/jpeg", onchange="previewImage(event)") }}
+    {% if form.image.errors %}<p class="text-red-500 text-sm">{{ form.image.errors.0 }}</p>{% endif %}
+  </div>
+  <div class="flex flex-col">
+    <label class="text-sm font-medium">Content:</label>
+    <div id="editor" class="bg-white"></div>
+    <input type="hidden"
+           name="{{ form.content.name }}"
+           id="hidden-content"
+           value="{{ form.content.value or '' }}" />
+    {% if form.content.errors %}<p class="text-red-500 text-sm">{{ form.content.errors.0 }}</p>{% endif %}
+  </div>
+  <button type="submit"
+          class="bg-primary p-1 rounded-lg text-primary-foreground w-36 ml-auto">
+    {% if blog %}
+      Update
+    {% else %}
+      Create
+    {% endif %}
+  </button>
+</form>
