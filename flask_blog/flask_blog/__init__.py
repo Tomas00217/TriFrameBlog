@@ -6,6 +6,7 @@ from flask_blog.models import Base
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 
 app = Flask(__name__, static_folder=str(Config.STATIC_FOLDER))
 app.config.from_object(Config)
@@ -16,6 +17,7 @@ login_manager.init_app(app)
 db = SQLAlchemy(app, model_class=Base)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
+csrf = CSRFProtect(app)
 
 # Blueprints
 from flask_blog.accounts.views import accounts_bp

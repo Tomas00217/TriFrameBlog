@@ -7,6 +7,7 @@ from flask_blog.blogs.models import Tag, BlogPost
 from flask_login import current_user, login_required
 from sqlalchemy import func
 from .forms import BlogPostForm
+from werkzeug.exceptions import Forbidden
 
 blogs_bp = Blueprint("blogs", __name__, template_folder="templates")
 
@@ -82,22 +83,77 @@ def create():
             upload_result = cloudinary.uploader.upload(image_file)
             image_url = upload_result["secure_url"]
 
-        blog_post = BlogPost(
+        blog = BlogPost(
             title = form.title.data,
             content = content,
             image = image_url,
             author = current_user
         )
 
-        db.session.add(blog_post)
+        db.session.add(blog)
         db.session.flush()
 
         selected_tags = Tag.query.filter(Tag.id.in_(form.tags.data)).all()
-        blog_post.tags.extend(selected_tags)
+        blog.tags.extend(selected_tags)
 
         db.session.commit()
 
         flash("Blog created successfully!", "success")
-        return redirect(url_for("blogs.detail", blog_id=blog_post.id))
+        return redirect(url_for("blogs.detail", blog_id=blog.id))
 
     return render_template("create.html", form=form)
+
+@blogs_bp.route("/blog/<int:blog_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(blog_id):
+    blog = BlogPost.query.get_or_404(blog_id)
+
+    if current_user != blog.author and not current_user.is_staff:
+        raise Forbidden
+
+    form = BlogPostForm(obj=blog)
+
+    if request.method == "GET":
+        form.tags.data = [tag.id for tag in blog.tags]
+
+    if form.validate_on_submit():
+        blog.content = bleach.clean(
+            form.content.data,
+            tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
+            attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
+        )
+
+        if "image" in request.files and request.files["image"].filename:
+            image_file = request.files["image"]
+            upload_result = cloudinary.uploader.upload(image_file)
+            blog.image = upload_result["secure_url"]
+
+        blog.title = form.title.data
+
+        print(form.tags.data)
+        selected_tags = Tag.query.filter(Tag.id.in_(form.tags.data)).all()
+        blog.tags = selected_tags
+
+        db.session.commit()
+
+        flash("Blog updated successfully!", "success")
+        return redirect(url_for("blogs.detail", blog_id=blog.id))
+
+    return render_template("edit.html", form=form, blog=blog)
+
+@blogs_bp.route("/blog/<int:blog_id>/delete", methods=["GET", "POST"])
+@login_required
+def delete(blog_id):
+    blog = BlogPost.query.get_or_404(blog_id)
+
+    if current_user != blog.author and not current_user.is_staff:
+        raise Forbidden
+    
+    if request.method == "POST":
+        db.session.delete(blog)
+        db.session.commit()
+
+        flash("Blog deleted successfully!", "success")
+        return redirect(url_for("blogs.my_blogs"))
+
+    return render_template("delete.html", blog=blog)

@@ -46,7 +46,7 @@
     <input type="hidden"
            name="{{ form.content.name }}"
            id="hidden-content"
-           value="{{ form.content.value or '' }}" />
+           value="{{ form.content.data or '' }}" />
     {% if form.content.errors %}<p class="text-red-500 text-sm">{{ form.content.errors.0 }}</p>{% endif %}
   </div>
   <button type="submit"
