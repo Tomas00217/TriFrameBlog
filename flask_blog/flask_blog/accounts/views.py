@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_blog.accounts.models import EmailUser
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_blog import db
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, UsernameUpdateForm
 
 accounts_bp = Blueprint("accounts", __name__, url_prefix="/accounts", template_folder="templates")
 
@@ -26,7 +26,7 @@ def login():
         else:
             form.email.errors.append("Your email and password did not match. Please try again.")
 
-    return render_template("accounts/login.html", form=form, next=next_page)
+    return render_template("login.html", form=form, next=next_page)
 
 @accounts_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -46,7 +46,7 @@ def register():
 
         return redirect(url_for("accounts.login"))
 
-    return render_template("accounts/register.html", form=form)
+    return render_template("register.html", form=form)
 
 @accounts_bp.route("/logout")
 @login_required
@@ -55,3 +55,17 @@ def logout():
 
     flash("You were logged out.", "success")
     return redirect(url_for("blogs.index"))
+
+@accounts_bp.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    form = UsernameUpdateForm(obj=current_user)
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        db.session.commit()
+
+        flash("Your username has been updated!", "success")
+        return redirect(url_for("accounts.profile"))
+
+    return render_template("profile.html", form=form)

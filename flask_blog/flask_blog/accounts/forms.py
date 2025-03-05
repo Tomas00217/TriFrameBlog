@@ -1,6 +1,6 @@
 from flask_blog.accounts.models import EmailUser
 from flask_wtf import FlaskForm
-from wtforms import EmailField, PasswordField
+from wtforms import EmailField, PasswordField, StringField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 class LoginForm(FlaskForm):
@@ -32,3 +32,6 @@ class RegisterForm(FlaskForm):
             return False
 
         return True
+
+class UsernameUpdateForm(FlaskForm):
+    username = StringField("Username", validators=[DataRequired(), Length(max=100)])
