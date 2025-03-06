@@ -1,4 +1,5 @@
 from accounts.models import EmailUser
+from blogs.managers import BlogPostManager, BlogPostQuerySet
 from django.db import models
 from django.utils import timezone
 from cloudinary.models import CloudinaryField
@@ -9,6 +10,9 @@ class Tag(models.Model):
     slug = models.SlugField(max_length=60, unique=True, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        Saves the tag by also creating a slug if it was not provided
+        """
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
@@ -23,6 +27,8 @@ class BlogPost(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     tags = models.ManyToManyField(Tag, related_name="blog_posts")
     author = models.ForeignKey(EmailUser, on_delete=models.CASCADE)
+
+    objects = BlogPostManager.from_queryset(BlogPostQuerySet)()
 
     class Meta:
         ordering = ["-created_at"]

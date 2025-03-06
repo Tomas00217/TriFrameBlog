@@ -22,6 +22,10 @@
   </section>
   <section>
     <h2 class="text-2xl font-bold py-6">More like this</h2>
-    {% include "blogs/components/blog_list.html" with blogs=related_blogs %}
+    {% if related_blogs %}
+      {% include "blogs/components/blog_list.html" with blogs=related_blogs %}
+    {% else %}
+      <p>No related blogs available.</p>
+    {% endif %}
   </section>
 {% endblock content %}
