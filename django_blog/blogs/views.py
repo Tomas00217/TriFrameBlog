@@ -8,26 +8,18 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
 def index(request):
-    blogs = BlogPost.objects.all()[:3]
+    blogs = BlogPost.objects.recent()
     tags = Tag.objects.all()
 
     return render(request, "blogs/index.html", {"blogs": blogs, "tags": tags})
 
 def blogs(request):
-    blog_list = BlogPost.objects.all()
-    tags = Tag.objects.all()
     tag_slugs = request.GET.get('tag', '')
-    tag_slugs_list = []
-
-    if tag_slugs:
-        tag_slugs_list = tag_slugs.split(',')
-        for tag_slug in tag_slugs_list:
-            blog_list = blog_list.filter(tags__slug=tag_slug)
-
     search = request.GET.get('search')
 
-    if search:
-        blog_list = blog_list.filter(title__icontains=search).distinct()
+    tag_slugs_list = tag_slugs.split(',') if tag_slugs else []
+    blog_list = BlogPost.objects.with_tags(tag_slugs_list).search_by_title(search)
+    tags = Tag.objects.all()
 
     paginator = Paginator(blog_list, 6)
     page = request.GET.get('page')
@@ -37,13 +29,13 @@ def blogs(request):
 
 def detail(request, blog_id):
     blog = get_object_or_404(BlogPost, pk=blog_id)
-    related_blogs = BlogPost.objects.filter(tags__in=blog.tags.all()).exclude(pk=blog.pk).distinct().order_by("?")[:3]
+    related_blogs = BlogPost.objects.related_to(blog)
 
     return render(request, "blogs/detail.html", {"blog": blog, "related_blogs": related_blogs})
 
 @login_required(login_url='/accounts/login/')
 def my_blogs(request):
-    blog_list = BlogPost.objects.filter(author=request.user)
+    blog_list = BlogPost.objects.by_author(request.user)
 
     paginator = Paginator(blog_list, 6)
     page = request.GET.get('page')
@@ -56,18 +48,10 @@ def create(request):
     if request.method == "POST":
         form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
-            blog_post = form.save(commit=False)
-            blog_post.author = request.user
-            blog_post.content = bleach.clean(
-                form.cleaned_data["content"],
-                tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
-                attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
-            )
-            blog_post.save()
-            form.save_m2m()
+            blog = form.save(author=request.user)
 
             messages.success(request, "Blog created successfully.")
-            return redirect("detail", blog_id=blog_post.pk)
+            return redirect("detail", blog_id=blog.pk)
     else:
         form = BlogPostForm()
 
@@ -83,14 +67,7 @@ def edit(request, blog_id):
     if request.method == "POST":
         form = BlogPostForm(request.POST, request.FILES, instance=blog)
         if form.is_valid():
-            blog_post = form.save(commit=False)
-            blog_post.content = bleach.clean(
-                form.cleaned_data["content"],
-                tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
-                attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
-            )
-            blog_post.save()
-            form.save_m2m()
+            blog_post = form.save()
 
             messages.success(request, "Blog updated successfully.")
             return redirect("detail", blog_id=blog_post.pk)

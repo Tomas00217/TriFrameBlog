@@ -12,12 +12,13 @@ def email_login(request):
     if request.method == "POST":
         form = EmailUserLoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data["email"]
-            password = form.cleaned_data["password"]
+            email = form.cleaned_data.get("email")
+            password = form.cleaned_data.get("password")
             user = authenticate(request, email=email, password=password)
 
             if user is not None:
                 login(request, user)
+
                 messages.success(request, "Login successful.")
                 return redirect("index")
             else:
@@ -51,8 +52,10 @@ def profile(request):
 
     if request.method == "POST":
         form = UsernameUpdateForm(request.POST, instance=request.user)
+
         if form.is_valid():
             form.save()
+
             messages.success(request, "Your username has been updated!")
             return redirect("profile")
 
