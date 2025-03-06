@@ -10,6 +10,9 @@ class Tag(models.Model):
     slug = models.SlugField(max_length=60, unique=True, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        Saves the tag by also creating a slug if it was not provided
+        """
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
