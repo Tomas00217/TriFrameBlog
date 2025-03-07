@@ -1,23 +1,21 @@
 from bs4 import BeautifulSoup
 from flask import Flask
 from flask_blog.config import Config
-from flask_bcrypt import Bcrypt
-from flask_blog.models import Base
-from flask_login import LoginManager
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import CSRFProtect
+from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf
+from flask_blog.repositories.blog_post_repository import BlogPostRepository
+from flask_blog.repositories.tag_repository import TagRepository
+from flask_blog.services.blog_post_service import BlogPostService
+from flask_blog.services.tag_service import TagService
 
 app = Flask(__name__, static_folder=str(Config.STATIC_FOLDER))
 app.config.from_object(Config)
 
 # Extensions
-login_manager = LoginManager()
 login_manager.init_app(app)
-db = SQLAlchemy(app, model_class=Base)
-migrate = Migrate(app, db)
-bcrypt = Bcrypt(app)
-csrf = CSRFProtect(app)
+db.init_app(app)
+migrate.init_app(app, db)
+bcrypt.init_app(app)
+csrf.init_app(app)
 
 # Blueprints
 from flask_blog.accounts.views import accounts_bp

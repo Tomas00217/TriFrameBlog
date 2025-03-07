@@ -1,10 +1,13 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_blog.accounts.models import EmailUser
+from flask_blog.repositories.email_user_repository import EmailUserRepository
+from flask_blog.services.email_user_service import EmailUserService
 from flask_login import current_user, login_required, login_user, logout_user
-from flask_blog import db
 from .forms import LoginForm, RegisterForm, UsernameUpdateForm
 
 accounts_bp = Blueprint("accounts", __name__, url_prefix="/accounts", template_folder="templates")
+user_repo = EmailUserRepository()
+user_service = EmailUserService(user_repo)
 
 @accounts_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -16,7 +19,7 @@ def login():
     next_page = request.args.get("next")
 
     if form.validate_on_submit():
-        user = EmailUser.query.filter_by(email=form.email.data).first()
+        user = user_service.get_user_by_email(form.email.data)
 
         if user and user.check_password(form.password.data):
             login_user(user)
@@ -37,13 +40,9 @@ def register():
     form = RegisterForm(request.form)
 
     if form.validate_on_submit():
-        user = EmailUser(email=form.email.data, password=form.password1.data)
-
-        db.session.add(user)
-        db.session.commit() 
+        user_service.register_user(form.email.data, form.password1.data)
 
         flash("Register successful.", "success")
-
         return redirect(url_for("accounts.login"))
 
     return render_template("register.html", form=form)
@@ -62,8 +61,7 @@ def profile():
     form = UsernameUpdateForm(obj=current_user)
 
     if form.validate_on_submit():
-        current_user.username = form.username.data
-        db.session.commit()
+        user_service.update_user(current_user, form.username.data)
 
         flash("Your username has been updated!", "success")
         return redirect(url_for("accounts.profile"))

@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from flask_blog import bcrypt, db
+from flask_blog.extensions import bcrypt, db
 from flask_login import UserMixin
 
 class EmailUser(UserMixin, db.Model):

@@ -1,67 +1,51 @@
-import bleach
-import cloudinary.uploader
+from flask_blog.repositories.blog_post_repository import BlogPostRepository
+from flask_blog.repositories.tag_repository import TagRepository
+from flask_blog.services.blog_post_service import BlogPostService
+from flask_blog.services.tag_service import TagService
 from flask import flash, redirect, render_template, request, url_for
 from flask import Blueprint
-from flask_blog import db
-from flask_blog.blogs.models import Tag, BlogPost
+from flask_blog.blogs.models import BlogPost
 from flask_login import current_user, login_required
-from sqlalchemy import func
 from .forms import BlogPostForm
 from werkzeug.exceptions import Forbidden
 
 blogs_bp = Blueprint("blogs", __name__, template_folder="templates")
+blog_post_repo = BlogPostRepository()
+tag_repo = TagRepository()
+blog_service = BlogPostService(blog_post_repo, tag_repo)
+tag_service = TagService(tag_repo)
 
 @blogs_bp.get("/")
 def index():
-    blogs = BlogPost.query.order_by(BlogPost.created_at.desc()).limit(3).all()
-    tags = Tag.query.all()
+    blogs = blog_service.get_recent_blogs()
+    tags = tag_service.get_all()
 
     return render_template("index.html", blogs=blogs, tags=tags)
 
 @blogs_bp.get("/blog")
 def blogs():
-    blog_list = BlogPost.query.join(BlogPost.tags)
-    tags = Tag.query.all()
-    tag_slugs = request.args.get('tag')
-
-    tag_slugs_list = []
-
-    if tag_slugs:
-        tag_slugs_list = tag_slugs.split(',')
-        for tag_slug in tag_slugs_list:
-            blog_list = blog_list.filter(BlogPost.tags.any(Tag.slug == tag_slug))
-
+    page = request.args.get("page", 1, type=int)
     search = request.args.get('search')
+    tag_slugs = request.args.get('tag')
+    tag_slugs_list = tag_slugs.split(',') if tag_slugs else []
 
-    if search:
-        blog_list = blog_list.filter(BlogPost.title.contains(search))
+    blogs = blog_service.get_paginated_blogs(tag_slugs_list, search, page)
 
-    blog_list = blog_list.distinct().order_by(BlogPost.created_at.desc())
-    blogs = blog_list.paginate(per_page=6)
+    tags = tag_service.get_all()
 
     return render_template("blogs.html", blogs=blogs, tags=tags, selected_tags=tag_slugs_list)
 
 @blogs_bp.get("/blog/<int:blog_id>")
 def detail(blog_id):
-    blog = BlogPost.query.get_or_404(blog_id)
-    related_blogs = (
-        BlogPost.query
-        .join(BlogPost.tags)
-        .filter(Tag.id.in_([tag.id for tag in blog.tags]))
-        .filter(BlogPost.id != blog.id)
-        .distinct(BlogPost.id)
-        .order_by(BlogPost.id, func.random())
-        .limit(3)
-        .all()
-        )
+    blog = blog_service.get_blog_by_id(blog_id)
+    related_blogs = blog_service.get_related_blogs(blog)
 
     return render_template("detail.html", blog=blog, related_blogs=related_blogs)
 
 @blogs_bp.get("/blog/my")
 @login_required
 def my_blogs():
-    blog_list = BlogPost.query.filter_by(author=current_user)
-    blogs = blog_list.paginate(per_page=6)
+    blogs = blog_service.get_paginated_user_blogs(current_user)
 
     return render_template("my_blogs.html", blogs=blogs)
 
@@ -71,32 +55,13 @@ def create():
     form = BlogPostForm(request.form)
 
     if form.validate_on_submit():
-        content = bleach.clean(
-            form.content.data,
-            tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
-            attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
+        blog = blog_service.create_blog_post(
+            title=form.title.data,
+            content=form.content.data,
+            image=request.files.get("image"),
+            author=current_user,
+            tag_ids=form.tags.data
         )
-
-        image_url = None
-        if "image" in request.files and request.files["image"].filename:
-            image_file = request.files["image"]
-            upload_result = cloudinary.uploader.upload(image_file)
-            image_url = upload_result["secure_url"]
-
-        blog = BlogPost(
-            title = form.title.data,
-            content = content,
-            image = image_url,
-            author = current_user
-        )
-
-        db.session.add(blog)
-        db.session.flush()
-
-        selected_tags = Tag.query.filter(Tag.id.in_(form.tags.data)).all()
-        blog.tags.extend(selected_tags)
-
-        db.session.commit()
 
         flash("Blog created successfully!", "success")
         return redirect(url_for("blogs.detail", blog_id=blog.id))
@@ -117,23 +82,13 @@ def edit(blog_id):
         form.tags.data = [tag.id for tag in blog.tags]
 
     if form.validate_on_submit():
-        blog.content = bleach.clean(
-            form.content.data,
-            tags=["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
-            attributes={"a": ["href", "target"], "span": ["class", "contenteditable"]},
+        blog_service.update_blog_post(
+            blog_id=blog.id,
+            title=form.title.data,
+            content=form.content.data,
+            image=request.files.get("image"),
+            tag_ids=form.tags.data
         )
-
-        if "image" in request.files and request.files["image"].filename:
-            image_file = request.files["image"]
-            upload_result = cloudinary.uploader.upload(image_file)
-            blog.image = upload_result["secure_url"]
-
-        blog.title = form.title.data
-
-        selected_tags = Tag.query.filter(Tag.id.in_(form.tags.data)).all()
-        blog.tags = selected_tags
-
-        db.session.commit()
 
         flash("Blog updated successfully!", "success")
         return redirect(url_for("blogs.detail", blog_id=blog.id))
@@ -149,8 +104,7 @@ def delete(blog_id):
         raise Forbidden
     
     if request.method == "POST":
-        db.session.delete(blog)
-        db.session.commit()
+        blog_service.delete_blog_post(blog_id)
 
         flash("Blog deleted successfully!", "success")
         return redirect(url_for("blogs.my_blogs"))
