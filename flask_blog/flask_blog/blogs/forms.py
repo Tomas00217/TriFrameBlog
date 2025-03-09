@@ -15,9 +15,10 @@ class BlogPostForm(FlaskForm):
     image = FileField("Image", validators=[FileAllowed(["jpg", "png", "jpeg"], "Images only!")])
     content = TextAreaField("Content")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, tag_service, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.tags.choices = [(tag.id, tag.name) for tag in Tag.query.all()]
+        all_tags = tag_service.get_all()
+        self.tags.choices = [(tag.id, tag.name) for tag in all_tags]
 
     def validate_tags(self, field):
             """

@@ -1,11 +1,13 @@
 from bs4 import BeautifulSoup
 from flask import Flask
+from flask_admin import Admin
+from flask_blog.container import container
+from flask_blog.accounts.models import EmailUser
+from flask_blog.admin import AdminModelView, MyAdminIndexView
+from flask_blog.blogs.admin import BlogPostAdminView
+from flask_blog.blogs.models import BlogPost, Tag
 from flask_blog.config import Config
 from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf
-from flask_blog.repositories.blog_post_repository import BlogPostRepository
-from flask_blog.repositories.tag_repository import TagRepository
-from flask_blog.services.blog_post_service import BlogPostService
-from flask_blog.services.tag_service import TagService
 
 app = Flask(__name__, static_folder=str(Config.STATIC_FOLDER))
 app.config.from_object(Config)
@@ -23,7 +25,11 @@ from flask_blog.blogs.views import blogs_bp
 app.register_blueprint(accounts_bp)
 app.register_blueprint(blogs_bp)
 
-from flask_blog.accounts.models import EmailUser
+# Admin
+admin = Admin(app, name='TriFrameBlog', template_mode='bootstrap3', index_view=MyAdminIndexView())
+admin.add_view(AdminModelView(EmailUser, db.session))
+admin.add_view(BlogPostAdminView(BlogPost, db.session, blog_service=container.blog_service))
+admin.add_view(AdminModelView(Tag, db.session))
 
 login_manager.login_view = "accounts.login"
 login_manager.login_message_category = "danger"

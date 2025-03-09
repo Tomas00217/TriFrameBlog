@@ -130,8 +130,8 @@ class BlogPostService:
         Returns:
             BlogPost: The newly created BlogPost object.
         """
-        content = self.__clean_content(content)
-        image_url = self.__upload_image(image)
+        content = self.clean_content(content)
+        image_url = self.upload_image(image)
         tags = self.tag_repo.get_by_ids(tag_ids)
 
         return self.blog_repo.create(title, content, image_url, author, tags)
@@ -158,8 +158,8 @@ class BlogPostService:
             abort(404, description="Blog post not found")
 
         tags = self.tag_repo.get_by_ids(tag_ids)
-        content = self.__clean_content(content)
-        image_url = self.__upload_image(image) if image else blog.image
+        content = self.clean_content(content)
+        image_url = self.upload_image(image) if image else blog.image
 
         return self.blog_repo.update(blog, title, content, image_url, tags)
 
@@ -182,7 +182,7 @@ class BlogPostService:
 
         return self.blog_repo.delete(blog)
 
-    def __clean_content(self, content):
+    def clean_content(self, content):
         """
         Cleans the provided content by removing any disallowed HTML tags and attributes.
 
@@ -197,7 +197,7 @@ class BlogPostService:
 
         return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
 
-    def __upload_image(self, image_file):
+    def upload_image(self, image_file):
         """
         Uploads an image file to Cloudinary and returns the secure URL of the uploaded image.
 

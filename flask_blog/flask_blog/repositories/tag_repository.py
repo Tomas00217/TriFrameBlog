@@ -13,19 +13,6 @@ class TagRepository:
         stmt = select(Tag)
         return db.session.execute(stmt).scalars().all()
 
-    def get_by_id(self, tag_id):
-        """
-        Retrieves a tag by its unique identifier (ID).
-
-        Args:
-            tag_id (int): The ID of the tag to retrieve.
-
-        Returns:
-            Tag or None: The Tag object if found, or None if no tag with the specified ID exists.
-        """
-        stmt = select(Tag).where(Tag.id == tag_id)
-        return db.session.execute(stmt).scalar_one_or_none()
-
     def get_by_ids(self, tag_ids):
         """
         Retrieves multiple tags by their unique identifiers (IDs).

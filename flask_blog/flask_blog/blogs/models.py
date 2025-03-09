@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from typing import Optional, List
-from flask_blog import db
-from sqlalchemy import DateTime, ForeignKey, String, Text, desc
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates, Query
+from flask_blog.extensions import db
+from sqlalchemy import DateTime, ForeignKey, String, Text, event
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from slugify import slugify
 from flask_blog.accounts.models import EmailUser
 
@@ -18,14 +18,14 @@ class Tag(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), unique=True)
     slug: Mapped[Optional[str]] = mapped_column(String(60), unique=True)
-    
-    @validates("name")
-    def generate_slug(self, key, value):
-        self.slug = slugify(value)
-        return value
 
     def __repr__(self):
         return self.name
+
+@event.listens_for(Tag, "before_insert")
+def generate_slug(mapper, connection, target):
+    if not target.slug:
+        target.slug = slugify(target.name)
 
 class BlogPost(db.Model):
     __tablename__ = "blog_post"

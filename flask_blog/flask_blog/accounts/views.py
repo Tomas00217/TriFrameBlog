@@ -1,13 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_blog.accounts.models import EmailUser
-from flask_blog.repositories.email_user_repository import EmailUserRepository
-from flask_blog.services.email_user_service import EmailUserService
+from flask_blog.container import container
 from flask_login import current_user, login_required, login_user, logout_user
 from .forms import LoginForm, RegisterForm, UsernameUpdateForm
 
 accounts_bp = Blueprint("accounts", __name__, url_prefix="/accounts", template_folder="templates")
-user_repo = EmailUserRepository()
-user_service = EmailUserService(user_repo)
+user_service = container.user_service
 
 @accounts_bp.route("/login", methods=["GET", "POST"])
 def login():

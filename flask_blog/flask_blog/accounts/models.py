@@ -22,7 +22,7 @@ class EmailUser(UserMixin, db.Model):
         self.set_password(password)
 
     def __repr__(self):
-        return f"<EmailUser {self.email}>"
+        return self.email
 
     def set_password(self, password):
         """Hashes and sets the password"""

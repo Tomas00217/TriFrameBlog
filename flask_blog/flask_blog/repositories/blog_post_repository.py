@@ -79,7 +79,7 @@ class BlogPostRepository:
         Returns:
             The select statement to retrieve blogs by the specified author.
         """
-        return select(BlogPost).join(BlogPost.tags).filter(BlogPost.author_id == user.id)
+        return select(BlogPost).filter(BlogPost.author_id == user.id)
 
     def get_by_author(self, user):
         """
