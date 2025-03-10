@@ -1,0 +1,6 @@
+{% extends "admin/master.html" %}
+{% block body %}
+  <h1>Admin Dashboard</h1>
+  <p>You are logged in as {{ current_user.email }}</p>
+  {% if current_user.is_authenticated %}<a href="{{ url_for("accounts.logout") }}">Logout</a>{% endif %}
+{% endblock body %}

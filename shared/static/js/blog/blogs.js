@@ -36,5 +36,7 @@ function toggleTag(tag) {
     urlParams.delete('tag');
   }
 
+  urlParams.delete('page');
+
   window.location.search = urlParams.toString();
 }
