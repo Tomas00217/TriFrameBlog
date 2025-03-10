@@ -16,10 +16,10 @@ def test_index_contains_latest_three_blogs(client, test_data):
     response = client.get(url_for("blogs.index"))
 
     assert response.status_code == 200
-    assert b"Blog4" not in response.data
-    assert b"Blog5" in response.data
-    assert b"Blog6" in response.data
-    assert b"Blog7" in response.data
+    assert "Blog4".encode() not in response.data
+    assert "Blog5".encode() in response.data
+    assert "Blog6".encode() in response.data
+    assert "Blog7".encode() in response.data
 
 def test_index_contains_all_tags(client, test_data):
     """
@@ -28,30 +28,30 @@ def test_index_contains_all_tags(client, test_data):
     response = client.get(url_for("blogs.index"))
 
     assert response.status_code == 200
-    assert b"Food" in response.data
-    assert b"Tech" in response.data
+    assert "Food".encode() in response.data
+    assert "Tech".encode() in response.data
 
 def test_blog_list_pagination_default(client, test_data):
     """Test pagination on the blogs page."""
     response = client.get(url_for("blogs.blogs"))
 
     assert response.status_code == 200
-    assert b"Blog1" not in response.data
-    assert b"Blog2" in response.data
-    assert b"Blog3" in response.data
-    assert b"Blog4" in response.data
-    assert b"Blog5" in response.data
-    assert b"Blog6" in response.data
-    assert b"Blog7" in response.data
+    assert "Blog1".encode() not in response.data
+    assert "Blog2".encode() in response.data
+    assert "Blog3".encode() in response.data
+    assert "Blog4".encode() in response.data
+    assert "Blog5".encode() in response.data
+    assert "Blog6".encode() in response.data
+    assert "Blog7".encode() in response.data
 
 def test_blog_list_pagination_second_page(client, test_data):
     """Test pagination on the blogs page."""
     response = client.get(url_for("blogs.blogs", page=2))
 
     assert response.status_code == 200
-    assert b"Blog1" in response.data
-    assert b"Blog6" not in response.data
-    assert b"Blog7" not in response.data
+    assert "Blog1".encode() in response.data
+    assert "Blog6".encode() not in response.data
+    assert "Blog7".encode() not in response.data
 
 def test_blogs_filter_by_tag(client, test_data):
     """
@@ -60,10 +60,10 @@ def test_blogs_filter_by_tag(client, test_data):
     response = client.get(url_for("blogs.blogs", tag="tech"))
 
     assert response.status_code == 200
-    assert b"Blog2" in response.data
-    assert b"Blog7" in response.data
-    assert b"Blog1" not in response.data
-    assert b"Blog3" not in response.data
+    assert "Blog2".encode() in response.data
+    assert "Blog7".encode() in response.data
+    assert "Blog1".encode() not in response.data
+    assert "Blog3".encode() not in response.data
 
 def test_blogs_search_function(client, test_data):
     """
@@ -72,10 +72,10 @@ def test_blogs_search_function(client, test_data):
     response = client.get(url_for("blogs.blogs", search="search"))
 
     assert response.status_code == 200
-    assert b"Blog1 search" in response.data
-    assert b"Blog4 search" in response.data
-    assert b"Blog2" not in response.data
-    assert b"Blog5" not in response.data
+    assert "Blog1 search".encode() in response.data
+    assert "Blog4 search".encode() in response.data
+    assert "Blog2".encode() not in response.data
+    assert "Blog5".encode() not in response.data
 
 def test_blog_detail_valid(client, test_data):
     """
@@ -106,11 +106,11 @@ def test_detail_contains_related_blogs(client, test_data):
     response = client.get(url_for("blogs.detail", blog_id=blog.id))
 
     assert response.status_code == 200
-    assert b"Blog7" in response.data  # Blog7 also has "Tech" tag
-    assert b"Blog1" not in response.data
-    assert b"Blog3" not in response.data
-    assert b"Blog4" not in response.data
-    assert b"Blog5" not in response.data
+    assert "Blog7".encode() in response.data  # Blog7 also has "Tech" tag
+    assert "Blog1".encode() not in response.data
+    assert "Blog3".encode() not in response.data
+    assert "Blog4".encode() not in response.data
+    assert "Blog5".encode() not in response.data
 
 
 def test_my_blogs_view_requires_login(client):
@@ -129,9 +129,9 @@ def test_my_blogs_shows_user_blogs(logged_in_client):
     response = logged_in_client.get(url_for("blogs.my_blogs"))
 
     assert response.status_code == 200
-    assert b"Blog1" in response.data
-    assert b"Blog2" in response.data
-    assert b"Blog3" not in response.data
+    assert "Blog1".encode() in response.data
+    assert "Blog2".encode() in response.data
+    assert "Blog3".encode() not in response.data
 
 def test_create_blog_requires_login(client):
     """
