@@ -1,4 +1,3 @@
-from flask_blog.blogs.models import Tag
 from flask_wtf import FlaskForm
 from wtforms import FileField, StringField, TextAreaField, SelectMultipleField, ValidationError
 from wtforms.widgets import ListWidget, CheckboxInput

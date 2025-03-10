@@ -2,7 +2,6 @@ from flask_blog.accounts.models import EmailUser
 from flask_blog.extensions import db
 from sqlalchemy import select
 
-
 class EmailUserRepository:
     def get_by_email(self, email):
         """

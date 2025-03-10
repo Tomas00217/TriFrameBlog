@@ -1,7 +1,6 @@
 from flask_blog.container import container
-from flask import flash, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from flask import Blueprint
-from flask_blog.blogs.models import BlogPost
 from flask_login import current_user, login_required
 from .forms import BlogPostForm
 from werkzeug.exceptions import Forbidden
@@ -32,10 +31,13 @@ def blogs():
 
 @blogs_bp.get("/blog/<int:blog_id>")
 def detail(blog_id):
-    blog = blog_service.get_blog_by_id(blog_id)
-    related_blogs = blog_service.get_related_blogs(blog)
+    try:
+        blog = blog_service.get_blog_by_id(blog_id)
+        related_blogs = blog_service.get_related_blogs(blog)
 
-    return render_template("detail.html", blog=blog, related_blogs=related_blogs)
+        return render_template("detail.html", blog=blog, related_blogs=related_blogs)
+    except ValueError as e:
+        abort(404, description=str(e))
 
 @blogs_bp.get("/blog/my")
 @login_required
@@ -67,42 +69,48 @@ def create():
 @blogs_bp.route("/blog/<int:blog_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(blog_id):
-    blog = BlogPost.query.get_or_404(blog_id)
+    try:
+        blog = blog_service.get_blog_by_id(blog_id)
 
-    if current_user != blog.author and not current_user.is_staff:
-        raise Forbidden
+        if current_user != blog.author and not current_user.is_staff:
+            raise Forbidden
 
-    form = BlogPostForm(obj=blog, tag_service=tag_service)
+        form = BlogPostForm(obj=blog, tag_service=tag_service)
 
-    if request.method == "GET":
-        form.tags.data = [tag.id for tag in blog.tags]
+        if request.method == "GET":
+            form.tags.data = [tag.id for tag in blog.tags]
 
-    if form.validate_on_submit():
-        blog_service.update_blog_post(
-            blog_id=blog.id,
-            title=form.title.data,
-            content=form.content.data,
-            image=request.files.get("image"),
-            tag_ids=form.tags.data
-        )
+        if form.validate_on_submit():
+            blog_service.update_blog_post(
+                blog_id=blog.id,
+                title=form.title.data,
+                content=form.content.data,
+                image=request.files.get("image"),
+                tag_ids=form.tags.data
+            )
 
-        flash("Blog updated successfully!", "success")
-        return redirect(url_for("blogs.detail", blog_id=blog.id))
+            flash("Blog updated successfully!", "success")
+            return redirect(url_for("blogs.detail", blog_id=blog.id))
 
-    return render_template("edit.html", form=form, blog=blog)
+        return render_template("edit.html", form=form, blog=blog)
+    except ValueError as e:
+        abort(404, description=str(e))
 
 @blogs_bp.route("/blog/<int:blog_id>/delete", methods=["GET", "POST"])
 @login_required
 def delete(blog_id):
-    blog = BlogPost.query.get_or_404(blog_id)
+    try:
+        blog = blog_service.get_blog_by_id(blog_id)
 
-    if current_user != blog.author and not current_user.is_staff:
-        raise Forbidden
-    
-    if request.method == "POST":
-        blog_service.delete_blog_post(blog_id)
+        if current_user != blog.author and not current_user.is_staff:
+            raise Forbidden
+        
+        if request.method == "POST":
+            blog_service.delete_blog_post(blog_id)
 
-        flash("Blog deleted successfully!", "success")
-        return redirect(url_for("blogs.my_blogs"))
+            flash("Blog deleted successfully!", "success")
+            return redirect(url_for("blogs.my_blogs"))
 
-    return render_template("delete.html", blog=blog)
+        return render_template("delete.html", blog=blog)
+    except ValueError as e:
+        abort(404, description=str(e))

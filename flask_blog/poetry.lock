@@ -940,6 +940,24 @@ files = [
 ]
 
 [[package]]
+name = "shared"
+version = "0.1.0"
+description = "Common functionality for TriFrameBlog"
+optional = false
+python-versions = ">=3.13"
+groups = ["main"]
+files = []
+develop = false
+
+[package.dependencies]
+bleach = ">=6.2.0,<7.0.0"
+cloudinary = ">=1.42.2,<2.0.0"
+
+[package.source]
+type = "directory"
+url = "../shared"
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1174,4 +1192,4 @@ email = ["email-validator"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "47f53b3e4ed674c1ba11d3ab071fd866d0dbecac07c39a222df03863ae97336a"
+content-hash = "a4b325de33e31890c97c93a58e60c76b7d7c9ca0ea56ee8fb0c338c46fc15598"

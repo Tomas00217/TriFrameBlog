@@ -1,12 +1,10 @@
-from flask_blog.repositories.email_user_repository import EmailUserRepository
-
 class EmailUserService:
-    def __init__(self, user_repo: EmailUserRepository):
+    def __init__(self, user_repo):
         """
         Initializes the EmailUserService with a repository for user-related operations.
 
         Args:
-            user_repo (EmailUserRepository): An instance of the EmailUserRepository for user data access.
+            user_repo: An instance of the EmailUserRepository for user data access.
         """
         self.user_repo = user_repo
 

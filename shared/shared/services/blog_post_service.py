@@ -1,17 +1,14 @@
 import bleach
 import cloudinary.uploader
-from flask import abort
-from flask_blog.repositories.blog_post_repository import BlogPostRepository
-from flask_blog.repositories.tag_repository import TagRepository
 
 class BlogPostService:
-    def __init__(self, blog_repo: BlogPostRepository, tag_repo: TagRepository):
+    def __init__(self, blog_repo, tag_repo):
         """
         Initializes the BlogPostService with repositories for blog posts and tags.
 
         Args:
-            blog_repo (BlogPostRepository): An instance of the BlogPostRepository for blog operations.
-            tag_repo (TagRepository): An instance of the TagRepository for tag-related operations.
+            blog_repo: An instance of the BlogPostRepository for blog operations.
+            tag_repo: An instance of the TagRepository for tag-related operations.
         """
         self.blog_repo = blog_repo
         self.tag_repo = tag_repo
@@ -43,7 +40,7 @@ class BlogPostService:
         """
         blog = self.blog_repo.get_by_id(blog_id)
         if not blog:
-            abort(404, description="Blog post not found")
+            raise ValueError("Blog post not found")
 
         return blog
 
@@ -155,7 +152,7 @@ class BlogPostService:
         """
         blog = self.blog_repo.get_by_id(blog_id)
         if not blog:
-            abort(404, description="Blog post not found")
+            raise ValueError("Blog post not found")
 
         tags = self.tag_repo.get_by_ids(tag_ids)
         content = self.clean_content(content)
@@ -178,7 +175,7 @@ class BlogPostService:
         """
         blog = self.blog_repo.get_by_id(blog_id)
         if not blog:
-            abort(404, description="Blog post not found")
+            raise ValueError("Blog post not found")
 
         return self.blog_repo.delete(blog)
 
