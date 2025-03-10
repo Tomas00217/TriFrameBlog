@@ -125,7 +125,7 @@ class BlogPostRepository:
             .join(BlogPost.tags)
             .filter(Tag.id.in_([tag.id for tag in blog.tags]))
             .filter(BlogPost.id != blog.id)
-            .distinct(BlogPost.id)
+            .group_by(BlogPost.id)
             .order_by(BlogPost.id, func.random())
             .limit(limit)
         )

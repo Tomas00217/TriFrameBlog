@@ -1,5 +1,6 @@
 from flask_blog.accounts.models import EmailUser
 from flask_wtf import FlaskForm
+from flask_blog.container import container
 from wtforms import EmailField, PasswordField, StringField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
@@ -26,7 +27,7 @@ class RegisterForm(FlaskForm):
         if not super().validate(extra_validators=extra_validators):
             return False
 
-        user = EmailUser.query.filter_by(email=self.email.data).first()
+        user = container.user_repo.get_by_email(self.email.data)
         if user:
             self.email.errors.append("Email already registered")
             return False

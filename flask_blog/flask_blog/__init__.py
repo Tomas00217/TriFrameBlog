@@ -44,7 +44,7 @@ def create_app(testing=False):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return EmailUser.query.get(int(user_id))
+        return container.user_repo.get_by_id(user_id)
 
     @app.template_filter("striptags")
     def striptags(value):
