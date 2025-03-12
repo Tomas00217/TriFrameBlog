@@ -34,6 +34,6 @@ class BlogPost(SQLModel, table=True):
     image: Optional[str] = Field(default=None, max_length=255)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    author: Optional["EmailUser"] = Relationship(back_populates="blog_posts")
+    author: Optional["EmailUser"] = Relationship(back_populates="blog_posts") # type: ignore
     author_id: int = Field(foreign_key="email_user.id")
     tags: List[Tag] = Relationship(back_populates="blog_posts", link_model=BlogPostTag)
