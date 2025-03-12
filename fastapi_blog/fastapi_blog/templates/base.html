@@ -4,7 +4,7 @@
   <meta name="keywords" content="Blog" />
   <head>
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/tailwind.css') }}" />
+          href="{{ url_for('static', path='css/tailwind.css') }}" />
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
           rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
@@ -19,27 +19,11 @@
     <main class="w-4/5 m-auto pt-4 flex-grow">
       {% block content %}
       {% endblock content %}
-      <div id="toast-container" class="fixed top-16 right-5 z-50 space-y-2">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <div class="row">
-              <div class="col-md-4"></div>
-              <div class="col-md-4">
-                {% for category, message in messages %}
-                  <div class="toast-message px-4 py-3 rounded-lg shadow-md text-white {% if category == 'success' %}bg-green-500 {% elif category == 'error' %}bg-red-500 {% elif category == 'info' %}bg-blue-500 {% endif %}">
-                    <span>{{ message }}</span>
-                  </div>
-                {% endfor %}
-              </div>
-              <div class="col-md-4"></div>
-            </div>
-          {% endif %}
-        {% endwith %}
-      </div>
+      <div id="toast-container" class="fixed top-16 right-5 z-50 space-y-2"></div>
     </main>
     {% include "components/footer.html" %}
     {% block scripts %}
-      <script src="{{ url_for('static', filename='js/blog/base.js') }}"></script>
+      <script src="{{ url_for('static', path='js/blog/base.js') }}"></script>
     {% endblock scripts %}
   </body>
 </html>

@@ -3,31 +3,31 @@
     <div class="flex justify-between">
       <ul class="flex gap-4">
         <li>
-          <a href="{{ url_for("blogs.index") }}">Home</a>
+          <a href="{{ url_for("index") }}">Home</a>
         </li>
         <li>
-          <a href="{{ url_for("blogs.blogs") }}">Blogs</a>
+          <a href="/">Blogs</a>
         </li>
-        {% if current_user.is_authenticated %}
+        {% if 1==2 %}
           <li>
-            <a href="{{ url_for("blogs.my_blogs") }}">My blogs</a>
+            <a href="/">My blogs</a>
           </li>
           <li>
-            <a href="{{ url_for("accounts.profile") }}">Profile</a>
+            <a href="/">Profile</a>
           </li>
         {% endif %}
       </ul>
       <ul class="flex gap-4">
-        {% if current_user.is_authenticated %}
+        {% if 1==2 %}
           <li>
-            <a href="{{ url_for("accounts.logout") }}">Logout</a>
+            <a href="/">Logout</a>
           </li>
         {% else %}
           <li>
-            <a href="{{ url_for("accounts.login") }}">Login</a>
+            <a href="/">Login</a>
           </li>
           <li>
-            <a href="{{ url_for("accounts.register") }}">Register</a>
+            <a href="/">Register</a>
           </li>
         {% endif %}
       </ul>
