@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+from fastapi_blog.accounts.models import EmailUser
 from sqlmodel import Field, Relationship, SQLModel
 from slugify import slugify
-
 
 class BlogPostTag(SQLModel, table=True):
     __tablename__ = "blogpost_tag"
@@ -21,6 +21,12 @@ class Tag(SQLModel, table=True):
         back_populates="tags", link_model=BlogPostTag
     )
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def generate_slug(self):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -34,6 +40,12 @@ class BlogPost(SQLModel, table=True):
     image: Optional[str] = Field(default=None, max_length=255)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    author: Optional["EmailUser"] = Relationship(back_populates="blog_posts") # type: ignore
+    author: Optional[EmailUser] = Relationship(back_populates="blog_posts")
     author_id: int = Field(foreign_key="email_user.id")
     tags: List[Tag] = Relationship(back_populates="blog_posts", link_model=BlogPostTag)
+
+    def __repr__(self):
+        return self.title
+
+    def __str__(self):
+        return self.title

@@ -12,7 +12,7 @@ class BlogPostRepository:
             search (str, optional): A search string to filter blogs by title. Defaults to None.
 
         Returns:
-           The select statement to retrieve blogs by the specified author.
+           The select statement to retrieve filtered blogs.
         """
         stmt = select(BlogPost).join(BlogPost.tags)
 

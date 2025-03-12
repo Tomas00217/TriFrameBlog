@@ -3,7 +3,7 @@
   <section class="text-center py-10">
     <h1 class="text-4xl font-bold">Welcome to TriFrameBlog</h1>
     <p class="text-gray-600 mt-2">Discover insightful articles and share your thoughts.</p>
-    <a href="/"
+    <a href="{{ url_for("blogs") }}"
        class="mt-4 inline-block px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Browse Blogs</a>
   </section>
   <section class="py-6">
@@ -14,7 +14,7 @@
     <h2 class="text-2xl font-semibold">Tags</h2>
     <div class="flex flex-wrap gap-2 mt-4">
       {% for tag in tags %}
-        <a href="/"
+        <a href="{{ url_for("blogs") }}?tag={{ tag.slug }}"
            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">{{ tag }}</a>
       {% endfor %}
     </div>

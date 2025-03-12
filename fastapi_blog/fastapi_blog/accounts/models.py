@@ -13,4 +13,10 @@ class EmailUser(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_staff: bool = Field(default=False)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    blog_posts: List["BlogPost"] = Relationship(back_populates="author") # type: ignore
+    blog_posts: List["BlogPost"] = Relationship(back_populates="author")
+
+    def __repr__(self):
+        return self.email
+
+    def __str__(self):
+        return self.email
