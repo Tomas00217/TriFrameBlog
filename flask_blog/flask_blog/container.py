@@ -1,9 +1,9 @@
 from flask_blog.repositories.blog_post_repository import BlogPostRepository
 from flask_blog.repositories.email_user_repository import EmailUserRepository
 from flask_blog.repositories.tag_repository import TagRepository
-from shared.services.blog_post_service import BlogPostService
-from shared.services.email_user_service import EmailUserService
-from shared.services.tag_service import TagService
+from flask_blog.services.blog_post_service import BlogPostService
+from flask_blog.services.email_user_service import EmailUserService
+from flask_blog.services.tag_service import TagService
 
 
 class Container:
