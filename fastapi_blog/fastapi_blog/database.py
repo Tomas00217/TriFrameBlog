@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import SQLModel, create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi_blog.config import settings
 from sqlalchemy.ext.asyncio import AsyncEngine

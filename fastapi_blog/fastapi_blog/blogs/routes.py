@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi_blog.blogs.schemas import BlogQueryParams
@@ -10,8 +11,8 @@ blogs_router = APIRouter()
 @blogs_router.get("/", response_class=HTMLResponse)
 async def index(
     request: Request,
-    blog_post_service: BlogPostService = Depends(get_blog_post_service),
-    tag_service: TagService = Depends(get_tag_service)
+    blog_post_service: Annotated[BlogPostService, Depends(get_blog_post_service)],
+    tag_service: Annotated[TagService, Depends(get_tag_service)],
 ):
     blogs = await blog_post_service.get_recent_blogs()
     tags = await tag_service.get_all()
@@ -23,9 +24,9 @@ async def index(
 @blogs_router.get("/blog", response_class=HTMLResponse)
 async def blogs(
     request: Request,
-    query_params: BlogQueryParams = Depends(),
-    blog_post_service: BlogPostService = Depends(get_blog_post_service),
-    tag_service: TagService = Depends(get_tag_service)
+    query_params: Annotated[BlogQueryParams, Depends()],
+    blog_post_service: Annotated[BlogPostService, Depends(get_blog_post_service)],
+    tag_service: Annotated[TagService, Depends(get_tag_service)],
 ):
     tag_slugs_list = query_params.tag.split(",") if query_params.tag else []
 
