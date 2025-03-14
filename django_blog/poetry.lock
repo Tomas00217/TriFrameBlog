@@ -196,14 +196,14 @@ files = [
 
 [[package]]
 name = "cssbeautifier"
-version = "1.15.3"
+version = "1.15.4"
 description = "CSS unobfuscator and beautifier."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "cssbeautifier-1.15.3-py3-none-any.whl", hash = "sha256:0dcaf5ce197743a79b3a160b84ea58fcbd9e3e767c96df1171e428125b16d410"},
-    {file = "cssbeautifier-1.15.3.tar.gz", hash = "sha256:406b04d09e7d62c0be084fbfa2cba5126fe37359ea0d8d9f7b963a6354fc8303"},
+    {file = "cssbeautifier-1.15.4-py3-none-any.whl", hash = "sha256:78c84d5e5378df7d08622bbd0477a1abdbd209680e95480bf22f12d5701efc98"},
+    {file = "cssbeautifier-1.15.4.tar.gz", hash = "sha256:9bb08dc3f64c101a01677f128acf01905914cf406baf87434dcde05b74c0acf5"},
 ]
 
 [package.dependencies]
@@ -213,14 +213,14 @@ six = ">=1.13.0"
 
 [[package]]
 name = "django"
-version = "5.1.6"
+version = "5.1.7"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "Django-5.1.6-py3-none-any.whl", hash = "sha256:8d203400bc2952fbfb287c2bbda630297d654920c72a73cc82a9ad7926feaad5"},
-    {file = "Django-5.1.6.tar.gz", hash = "sha256:1e39eafdd1b185e761d9fab7a9f0b9fa00af1b37b25ad980a8aa0dac13535690"},
+    {file = "Django-5.1.7-py3-none-any.whl", hash = "sha256:1323617cb624add820cb9611cdcc788312d250824f92ca6048fda8625514af2b"},
+    {file = "Django-5.1.7.tar.gz", hash = "sha256:30de4ee43a98e5d3da36a9002f287ff400b43ca51791920bfb35f6917bfe041c"},
 ]
 
 [package.dependencies]
@@ -354,14 +354,14 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "jsbeautifier"
-version = "1.15.3"
+version = "1.15.4"
 description = "JavaScript unobfuscator and beautifier."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "jsbeautifier-1.15.3-py3-none-any.whl", hash = "sha256:b207a15ab7529eee4a35ae7790e9ec4e32a2b5026d51e2d0386c3a65e6ecfc91"},
-    {file = "jsbeautifier-1.15.3.tar.gz", hash = "sha256:5f1baf3d4ca6a615bb5417ee861b34b77609eeb12875555f8bbfabd9bf2f3457"},
+    {file = "jsbeautifier-1.15.4-py3-none-any.whl", hash = "sha256:72f65de312a3f10900d7685557f84cb61a9733c50dcc27271a39f5b0051bf528"},
+    {file = "jsbeautifier-1.15.4.tar.gz", hash = "sha256:5bb18d9efb9331d825735fbc5360ee8f1aac5e52780042803943aa7f854f7592"},
 ]
 
 [package.dependencies]
