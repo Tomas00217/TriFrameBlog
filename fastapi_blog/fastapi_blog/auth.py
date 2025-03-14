@@ -1,3 +1,4 @@
+from datetime import timedelta
 from fastapi_blog.database import async_engine
 from fastapi_blog.config import settings
 from fastapi_blog.exceptions import NotAuthenticatedException
@@ -13,9 +14,9 @@ manager = LoginManager(
     cookie_name="auth_token",
     use_cookie=True,
     use_header=False,
-    not_authenticated_exception=NotAuthenticatedException
+    not_authenticated_exception=NotAuthenticatedException,
+    default_expiry=timedelta(hours=6)
 )
-
 
 @manager.user_loader()
 async def load_user(email: str):

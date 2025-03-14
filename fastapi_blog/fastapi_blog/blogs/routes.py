@@ -1,6 +1,8 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
+from fastapi_blog.accounts.models import EmailUser
+from fastapi_blog.auth import manager
 from fastapi_blog.blogs.schemas import BlogQueryParams
 from fastapi_blog.services.blog_post_service import BlogPostService, get_blog_post_service
 from fastapi_blog.services.tag_service import TagService, get_tag_service
@@ -21,7 +23,7 @@ async def index(
         "index.html", {"request": request, "blogs": blogs, "tags": tags}
     )
 
-@blogs_router.get("/blog", response_class=HTMLResponse)
+@blogs_router.get("/blogs", response_class=HTMLResponse)
 async def blogs(
     request: Request,
     query_params: Annotated[BlogQueryParams, Depends()],
@@ -36,3 +38,34 @@ async def blogs(
     return templates.TemplateResponse(
         "blogs.html", {"request": request, "result": result, "tags": tags, "selected_tags": tag_slugs_list}
     )
+
+@blogs_router.get("/blogs/my", response_class=HTMLResponse)
+async def my_blogs(
+    request: Request, 
+    query_params: Annotated[BlogQueryParams, Depends()],
+    blog_post_service: Annotated[BlogPostService, Depends(get_blog_post_service)],
+    user: Annotated[EmailUser, Depends(manager)]
+):
+    result = await blog_post_service.get_paginated_user_blogs(user, query_params.page, query_params.per_page)
+
+    return templates.TemplateResponse(
+        "my_blogs.html", {"request": request, "result": result}
+    )
+
+@blogs_router.get("/blogs/{blog_id}", response_class=HTMLResponse)
+async def detail(
+    request: Request, 
+    blog_id: int,
+    blog_post_service: Annotated[BlogPostService, Depends(get_blog_post_service)]
+):
+    try:
+        blog = await blog_post_service.get_blog_by_id(blog_id)
+        related_blogs = await blog_post_service.get_related_blogs(blog)
+
+        return templates.TemplateResponse(
+            "detail.html", {"request": request, "blog": blog, "related_blogs": related_blogs}
+        )
+    except ValueError:
+        return templates.TemplateResponse(
+            "404.html", {"request": request}
+        )

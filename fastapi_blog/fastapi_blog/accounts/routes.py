@@ -1,7 +1,8 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_blog.accounts.forms import LoginForm, RegisterForm, UsernameUpdateForm
+from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.auth import manager
 from fastapi_blog.services.email_user_service import EmailUserService, get_email_user_service
 from fastapi_blog.templating import templates
@@ -12,16 +13,18 @@ accounts_router = APIRouter()
 @accounts_router.get("/login", response_class=HTMLResponse)
 async def login_page(
     request: Request,
+    next: str | None = None
 ):
     form = LoginForm()
 
     return templates.TemplateResponse(
-        "login.html", {"request": request, "form": form})
+        "login.html", {"request": request, "form": form, "next": next})
 
 @accounts_router.post("/login")
 async def login(
     request: Request,
-    user_service: Annotated[EmailUserService, Depends(get_email_user_service)]
+    user_service: Annotated[EmailUserService, Depends(get_email_user_service)],
+    next: str | None = None
 ):
     form = LoginForm(await request.form())
 
@@ -30,7 +33,7 @@ async def login(
 
         if user and user.verify_password(form.password.data):
             access_token = manager.create_access_token(data={"sub": user.email})
-            response = RedirectResponse(url="/", status_code=HTTP_303_SEE_OTHER)
+            response = RedirectResponse(url=next or "/", status_code=HTTP_303_SEE_OTHER)
             manager.set_cookie(response, access_token)
 
             return response
@@ -74,8 +77,8 @@ async def logout(request: Request):
     return response
 
 @accounts_router.get("/profile")
-async def profile_page(request: Request):
-    form = UsernameUpdateForm(obj=request.state.user)
+async def profile_page(request: Request, user: Annotated[EmailUser, Depends(manager)]):
+    form = UsernameUpdateForm(obj=user)
 
     return templates.TemplateResponse(
         "profile.html", {"request": request, "form": form})
@@ -83,7 +86,8 @@ async def profile_page(request: Request):
 @accounts_router.post("/profile")
 async def profile(
     request: Request,
-    user_service: Annotated[EmailUserService, Depends(get_email_user_service)]
+    user_service: Annotated[EmailUserService, Depends(get_email_user_service)],
+    user: Annotated[EmailUser, Depends(manager)]
 ):
     form = UsernameUpdateForm(await request.form())
 
@@ -92,5 +96,5 @@ async def profile(
             {"request": request, "form": form, "errors": form.errors}
         )
 
-    await user_service.update_user(request.state.user, form.username.data)
+    await user_service.update_user(user, form.username.data)
     return RedirectResponse(url="/accounts/profile", status_code=HTTP_303_SEE_OTHER)

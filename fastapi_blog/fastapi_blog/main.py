@@ -20,5 +20,5 @@ def auth_exception_handler(request: Request, exc: NotAuthenticatedException):
     """
     Redirect the user to the login page if not logged in
     """
-    return RedirectResponse(url="/accounts/login")
-
+    redirect_url = f"/accounts/login?next={request.url.path}"
+    return RedirectResponse(url=redirect_url)

@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import Depends
+from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.blogs.models import BlogPost, Tag
 from fastapi_blog.blogs.schemas import PaginatedResponse
 from fastapi_blog.database import get_session
@@ -96,6 +97,67 @@ class BlogPostRepository:
             total_pages=total_pages,
             next_page=next_page,
             prev_page=prev_page,
+        )
+    
+    async def get_by_id(self, blog_id: int):
+        """
+        Retrieves a blog post by its unique identifier (ID).
+
+        Args:
+            blog_id (int): The ID of the blog post.
+
+        Returns:
+            BlogPost or None: The BlogPost object if found, or None if no blog with the specified ID exists.
+        """
+        stmt = (
+            select(BlogPost)
+            .options(joinedload(BlogPost.tags))
+            .options(joinedload(BlogPost.author))
+            .filter(BlogPost.id == blog_id)
+        )
+        result = await self.db.exec(stmt)
+
+        return result.unique().one_or_none()
+
+    async def get_related(self, blog: BlogPost, limit: int = 3):
+        """
+        Retrieves related blog posts based on shared tags, excluding the current blog post.
+
+        Args:
+            blog (BlogPost): The blog post to find related posts for.
+            limit (int, optional): The maximum number of related blog posts to return. Defaults to 3.
+
+        Returns:
+            list: A list of BlogPost objects related to the specified blog post.
+        """
+        stmt = (
+            select(BlogPost)
+            .options(joinedload(BlogPost.tags))
+            .filter(Tag.id.in_([tag.id for tag in blog.tags]))
+            .filter(BlogPost.id != blog.id)
+            .group_by(BlogPost.id)
+            .order_by(BlogPost.id, func.random())
+            .limit(limit)
+        )
+        result = await self.db.exec(stmt)
+
+        return result.unique().all()
+    
+    def get_by_author_query(self, user: EmailUser):
+        """
+        Constructs a query to retrieve all blog posts authored by a specific user.
+
+        Args:
+            user (User): The user whose blogs are to be retrieved.
+
+        Returns:
+            The select statement to retrieve blogs by the specified author.
+        """
+        return (
+            select(BlogPost)
+            .options(joinedload(BlogPost.tags))
+            .filter(BlogPost.author_id == user.id)
+            .order_by(BlogPost.created_at.desc())
         )
 
 def get_blog_post_repository(db: AsyncSession = Depends(get_session)):

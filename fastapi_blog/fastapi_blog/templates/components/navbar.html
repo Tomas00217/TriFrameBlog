@@ -10,7 +10,7 @@
         </li>
         {% if request.state.user %}
           <li>
-            <a href="/">My blogs</a>
+            <a href="{{ url_for("my_blogs") }}">My blogs</a>
           </li>
           <li>
             <a href="{{ url_for("profile") }}">Profile</a>
