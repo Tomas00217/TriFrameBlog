@@ -32,7 +32,7 @@
                required />
       </div>
       <button type="submit"
-              class="bg-primary p-1 rounded-lg text-primary-foreground w-36 m-auto">Log In</button>
+              class="bg-primary p-1 rounded-lg text-primary-foreground w-36 m-auto">Login</button>
       <input type="hidden" name="next" value="{{ next }}" />
     </form>
     <p class="text-xs text-foreground">
@@ -40,10 +40,8 @@
     class="text-primary hover:text-primary/80 hover:underline">Register now!</a>
     </p>
     {% if form.errors %}
-    {% for field, errors in form.errors.items %}
-        {% for error in errors %}
-          <p class="text-red-500 text-sm">{{ error }}</p>
-        {% endfor %}
+      {% for field, errors in form.errors.items %}
+        {% for error in errors %}<p class="text-red-500 text-sm">{{ error }}</p>{% endfor %}
       {% endfor %}
     {% endif %}
   </div>
