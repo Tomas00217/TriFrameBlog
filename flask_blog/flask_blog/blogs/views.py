@@ -16,7 +16,7 @@ def index():
 
     return render_template("index.html", blogs=blogs, tags=tags)
 
-@blogs_bp.get("/blog")
+@blogs_bp.get("/blogs")
 def blogs():
     page = request.args.get("page", 1, type=int)
     search = request.args.get('search')
@@ -29,7 +29,7 @@ def blogs():
 
     return render_template("blogs.html", blogs=blogs, tags=tags, selected_tags=tag_slugs_list)
 
-@blogs_bp.get("/blog/<int:blog_id>")
+@blogs_bp.get("/blogs/<int:blog_id>")
 def detail(blog_id):
     try:
         blog = blog_service.get_blog_by_id(blog_id)
@@ -39,7 +39,7 @@ def detail(blog_id):
     except ValueError as e:
         abort(404, description=str(e))
 
-@blogs_bp.get("/blog/my")
+@blogs_bp.get("/blogs/my")
 @login_required
 def my_blogs():
     page = request.args.get("page", 1, type=int)
@@ -47,7 +47,7 @@ def my_blogs():
 
     return render_template("my_blogs.html", blogs=blogs)
 
-@blogs_bp.route("/blog/create", methods=["GET", "POST"])
+@blogs_bp.route("/blogs/create", methods=["GET", "POST"])
 @login_required
 def create():
     form = BlogPostForm(formdata=request.form, tag_service=tag_service)
@@ -66,7 +66,7 @@ def create():
 
     return render_template("create.html", form=form)
 
-@blogs_bp.route("/blog/<int:blog_id>/edit", methods=["GET", "POST"])
+@blogs_bp.route("/blogs/<int:blog_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(blog_id):
     try:
@@ -96,7 +96,7 @@ def edit(blog_id):
     except ValueError as e:
         abort(404, description=str(e))
 
-@blogs_bp.route("/blog/<int:blog_id>/delete", methods=["GET", "POST"])
+@blogs_bp.route("/blogs/<int:blog_id>/delete", methods=["GET", "POST"])
 @login_required
 def delete(blog_id):
     try:
