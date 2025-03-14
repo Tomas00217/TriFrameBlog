@@ -1,6 +1,6 @@
 from fastapi_blog.forms import MyForm
 from fastapi_blog.services.email_user_service import EmailUserService
-from wtforms import EmailField, PasswordField
+from wtforms import EmailField, PasswordField, StringField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 class LoginForm(MyForm):
@@ -32,3 +32,6 @@ class RegisterForm(MyForm):
             return False
 
         return True
+
+class UsernameUpdateForm(MyForm):
+    username = StringField("Username", validators=[DataRequired(), Length(max=100)])

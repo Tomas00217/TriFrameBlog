@@ -40,5 +40,11 @@ class EmailUserRepository:
 
         return user
 
+    async def update(self, user: EmailUser):
+        await self.db.merge(user)
+        await self.db.commit()
+
+        return user
+
 def get_email_user_repository(db: AsyncSession = Depends(get_session)):
     return EmailUserRepository(db)

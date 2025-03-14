@@ -7,8 +7,15 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-manager = LoginManager(settings.SECRET_KEY, "/accounts/login", use_cookie=True, use_header=False, not_authenticated_exception=NotAuthenticatedException)
-manager.cookie_name = "auth_token"
+manager = LoginManager(
+    settings.SECRET_KEY,
+    "/accounts/login",
+    cookie_name="auth_token",
+    use_cookie=True,
+    use_header=False,
+    not_authenticated_exception=NotAuthenticatedException
+)
+
 
 @manager.user_loader()
 async def load_user(email: str):

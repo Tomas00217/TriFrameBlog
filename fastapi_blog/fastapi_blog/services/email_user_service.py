@@ -1,4 +1,5 @@
 from fastapi import Depends
+from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.repositories.email_user_repository import EmailUserRepository, get_email_user_repository
 
 class EmailUserService:
@@ -40,6 +41,20 @@ class EmailUserService:
             EmailUser: The newly created EmailUser object.
         """
         return await self.user_repo.create(email=email, password=password)
+    
+    async def update_user(self, user: EmailUser, new_username: str):
+        """
+        Updates the user's profile with a new username.
+
+        Args:
+            user (EmailUser): The user object to update.
+            new_username (str): The new username to assign.
+
+        Returns:
+            EmailUser: The updated EmailUser object.
+        """
+        user.username = new_username
+        return await self.user_repo.update(user)
 
 def get_email_user_service(email_user_repo: EmailUserRepository = Depends(get_email_user_repository)):
     return EmailUserService(email_user_repo)

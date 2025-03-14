@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="text-3xl font-bold">Profile</h1>
+  <form class="space-y-4 flex flex-col" method="post">
+    {{ form.csrf_token }}
+    <div>
+      <label for="email" class="text-sm font-medium text-gray-700">Email:</label>
+      <input id="email"
+             type="email"
+             value="{{ request.state.user.email }}"
+             class="text-sm p-2 rounded-md border border-input w-full bg-gray-100 cursor-not-allowed"
+             readonly>
+    </div>
+    <div>
+      <label for="{{ form.username.id }}" class="text-sm font-medium">Username:</label>
+      {{ form.username(class="text-sm p-2 rounded-md border border-input w-full") }}
+    </div>
+    <button type="submit"
+            class="ml-auto bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/80">
+      Save Changes
+    </button>
+  </form>
+{% endblock content %}
