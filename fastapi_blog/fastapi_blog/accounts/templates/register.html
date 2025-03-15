@@ -3,18 +3,36 @@
   <div class="bg-card text-card-foreground p-4 rounded-lg w-2/3 lg:w-1/2 m-auto text-center">
     <h1 class="text-xl font-bold">Register</h1>
     <form method="post" class="flex flex-col gap-4 py-4 text-left">
-      {{ form.csrf_token }}
+      <input type="hidden"
+             name="csrf_token"
+             value="{{ request.state.csrf_token }}">
       <div class="flex flex-col w-3/4 m-auto">
-        <label for="{{ form.email.id }}" class="text-sm font-medium">Email:</label>
-        {{ form.email(class="text-sm p-2 rounded-md border border-input", placeholder="Enter your email") }}
+        <label for="email" class="text-sm font-medium">Email:</label>
+        <input type="email"
+               id="email"
+               name="email"
+               class="text-sm p-2 rounded-md border border-input"
+               placeholder="Enter your email"
+               value="{{ values.email if values else '' }}"
+               required>
       </div>
       <div class="flex flex-col w-3/4 m-auto">
-        <label for="{{ form.password1.id }}" class="text-sm font-medium">Password:</label>
-        {{ form.password1(class="text-sm p-2 rounded-md border border-input", placeholder="Enter your password") }}
+        <label for="password1" class="text-sm font-medium">Password:</label>
+        <input type="password"
+               id="password1"
+               name="password1"
+               class="text-sm p-2 rounded-md border border-input"
+               placeholder="Enter your password"
+               required>
       </div>
       <div class="flex flex-col w-3/4 m-auto">
-        <label for="{{ form.password2.id }}" class="text-sm font-medium">Confirm Password:</label>
-        {{ form.password2(class="text-sm p-2 rounded-md border border-input", placeholder="Confirm your password") }}
+        <label for="password2" class="text-sm font-medium">Confirm Password:</label>
+        <input type="password"
+               id="password2"
+               name="password2"
+               class="text-sm p-2 rounded-md border border-input"
+               placeholder="Confirm your password"
+               required>
       </div>
       <button type="submit"
               class="bg-primary p-1 rounded-lg text-primary-foreground w-36 m-auto">Register</button>
@@ -23,8 +41,9 @@
       Already have an account? <a href="{{ url_for("login") }}"
     class="text-primary hover:text-primary/80 hover:underline">Log in!</a>
     </p>
-    {% for field in form %}
-      {% if field.errors %}<p class="text-red-500 text-sm">{{ field.errors.0 }}</p>{% endif %}
-    {% endfor %}
+    {% if errors %}
+      {% set first_field = errors.keys()|list|first %}
+      {% if errors[first_field] %}<p class="text-red-500 text-sm">{{ errors[first_field][0] }}</p>{% endif %}
+    {% endif %}
   </div>
 {% endblock content %}
