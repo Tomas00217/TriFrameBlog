@@ -164,7 +164,7 @@ class MyBlogsViewTests(TestCase):
         Unathenticated user is redirected to login.
         """
         response = self.client.get(reverse("my_blogs"))
-        self.assertRedirects(response, "/accounts/login/?next=/blog/my")
+        self.assertRedirects(response, "/accounts/login/?next=/blogs/my")
 
     def test_my_blogs_view_shows_only_user_blogs(self):
         """
@@ -187,7 +187,7 @@ class BlogCreateViewTests(TestCase):
         Unathenticated user is redirected to login.
         """
         response = self.client.get(reverse("create"))
-        self.assertRedirects(response, "/accounts/login/?next=/blog/create")
+        self.assertRedirects(response, "/accounts/login/?next=/blogs/create")
 
     def test_create_blog_success(self):
         """
@@ -219,7 +219,7 @@ class BlogEditViewTests(TestCase):
         Unathenticated user is redirected to login.
         """
         response = self.client.get(reverse("edit", args=[self.blog.id]))
-        self.assertRedirects(response, f"/accounts/login/?next=/blog/{self.blog.id}/edit")
+        self.assertRedirects(response, f"/accounts/login/?next=/blogs/{self.blog.id}/edit")
 
     def test_edit_blog_permission_denied(self):
         """
@@ -260,7 +260,7 @@ class BlogDeleteViewTests(TestCase):
         Unathenticated user is redirected to login.
         """
         response = self.client.get(reverse("delete", args=[self.blog.id]))
-        self.assertRedirects(response, f"/accounts/login/?next=/blog/{self.blog.id}/delete")
+        self.assertRedirects(response, f"/accounts/login/?next=/blogs/{self.blog.id}/delete")
 
     def test_delete_blog_permission_denied(self):
         """
