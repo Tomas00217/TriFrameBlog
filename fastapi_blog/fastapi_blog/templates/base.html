@@ -19,7 +19,13 @@
     <main class="w-4/5 m-auto pt-4 flex-grow">
       {% block content %}
       {% endblock content %}
-      <div id="toast-container" class="fixed top-16 right-5 z-50 space-y-2"></div>
+      <div id="toast-container" class="fixed top-16 right-5 z-50 space-y-2">
+        {% for message in get_toast_messages(request) %}
+          <div class="toast-message px-4 py-3 rounded-lg shadow-md text-white {% if message.type == 'success' %}bg-green-500 {% elif message.type == 'error' %}bg-red-500 {% elif message.type == 'info' %}bg-blue-500 {% endif %}">
+            <span>{{ message.message }}</span>
+          </div>
+        {% endfor %}
+      </div>
     </main>
     {% include "components/footer.html" %}
     {% block scripts %}

@@ -5,7 +5,7 @@ from fastapi_blog.accounts.forms import LoginForm, RegisterForm, UsernameUpdateF
 from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.auth import manager
 from fastapi_blog.services.email_user_service import EmailUserService, get_email_user_service
-from fastapi_blog.templating import templates
+from fastapi_blog.templating import templates, toast
 from starlette.status import HTTP_303_SEE_OTHER
 from starlette_wtf import csrf_protect
 
@@ -16,6 +16,10 @@ async def login_page(
     request: Request,
     next: str | None = None
 ):
+    if request.state.user:
+        toast(request, "You are already logged in.")
+        return RedirectResponse(url="/", status_code=HTTP_303_SEE_OTHER)
+
     form = await LoginForm.from_formdata(request)
 
     return templates.TemplateResponse(
@@ -38,10 +42,11 @@ async def login(
             response = RedirectResponse(url=next or "/", status_code=HTTP_303_SEE_OTHER)
             manager.set_cookie(response, access_token)
 
+            toast(request, "Login successful.", "success")
             return response
         else:
             form.email.errors.append("Your email and password did not match. Please try again.")
-        
+
     return templates.TemplateResponse("login.html", 
         {"request": request, "form": form, "errors": form.errors}
     )
@@ -50,6 +55,10 @@ async def login(
 async def register_page(
     request: Request,
 ):
+    if request.state.user:
+        toast(request, "You are already registered.")
+        return RedirectResponse(url="/", status_code=HTTP_303_SEE_OTHER)
+
     form = await RegisterForm.from_formdata(request)
 
     return templates.TemplateResponse(
@@ -69,6 +78,8 @@ async def register(
         )
 
     await user_service.register_user(form.email.data, form.password1.data)
+
+    toast(request, "Register successful.", "success")
     return RedirectResponse(url="/accounts/login", status_code=HTTP_303_SEE_OTHER)
 
 @accounts_router.get("/logout")
@@ -77,6 +88,7 @@ async def logout(request: Request):
 
     response.delete_cookie("auth_token")
 
+    toast(request, "You were logged out.", "success")
     return response
 
 @accounts_router.get("/profile")
@@ -101,4 +113,6 @@ async def profile(
         )
 
     await user_service.update_user(user, form.username.data)
+
+    toast(request, "Your username has been updated!", "success")
     return RedirectResponse(url="/accounts/profile", status_code=HTTP_303_SEE_OTHER)

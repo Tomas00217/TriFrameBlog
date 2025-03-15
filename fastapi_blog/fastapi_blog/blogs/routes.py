@@ -7,7 +7,7 @@ from fastapi_blog.blogs.forms import BlogPostForm, DeleteBlogPostForm
 from fastapi_blog.blogs.schemas import BlogQueryParams
 from fastapi_blog.services.blog_post_service import BlogPostService, get_blog_post_service
 from fastapi_blog.services.tag_service import TagService, get_tag_service
-from fastapi_blog.templating import templates
+from fastapi_blog.templating import templates, toast
 from starlette_wtf import csrf_protect
 from starlette.status import HTTP_303_SEE_OTHER
 
@@ -96,6 +96,8 @@ async def create(
         author=user,
         tag_ids=form.tags.data
     )
+
+    toast(request, "Blog created successfully!", "success")
     return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
 
 @blogs_router.get("/blogs/{blog_id}", response_class=HTMLResponse)
@@ -183,6 +185,7 @@ async def edit(
             tag_ids=form.tags.data
         )
 
+        toast(request, "Blog updated successfully!", "success")
         return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
     except ValueError:
         return templates.TemplateResponse(
@@ -232,6 +235,7 @@ async def delete(
         if await form.validate_on_submit():
             await blog_post_service.delete_blog_post(blog_id)
 
+        toast(request, "Blog deleted successfully!", "success")
         return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
     except ValueError:
         return templates.TemplateResponse(
