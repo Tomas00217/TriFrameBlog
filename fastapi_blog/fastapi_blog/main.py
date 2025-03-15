@@ -17,8 +17,8 @@ manager.attach_middleware(app)
 
 app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
-app.include_router(accounts_router, prefix="/accounts", tags=["accounts"])
-app.include_router(blogs_router, prefix="", tags=["blogs"])
+app.include_router(accounts_router, prefix="/accounts", tags=["accounts"], include_in_schema=False)
+app.include_router(blogs_router, prefix="", tags=["blogs"], include_in_schema=False)
 
 @app.exception_handler(NotAuthenticatedException)
 def auth_exception_handler(request: Request, exc: NotAuthenticatedException):

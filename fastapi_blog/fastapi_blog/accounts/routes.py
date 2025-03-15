@@ -95,7 +95,7 @@ async def profile(
 ):
     form = await UsernameUpdateForm.from_formdata(request)
 
-    if not form.validate():
+    if not await form.validate_on_submit():
         return templates.TemplateResponse("profile.html",
             {"request": request, "form": form, "errors": form.errors}
         )

@@ -1,12 +1,15 @@
-from typing import List, Optional
+from typing import Annotated, List, Optional
+import bleach
+import cloudinary.uploader
 from fastapi import Depends
 from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.blogs.models import BlogPost
 from fastapi_blog.repositories.blog_post_repository import BlogPostRepository, get_blog_post_repository
+from fastapi_blog.repositories.tag_repository import TagRepository, get_tag_repository
 
 
 class BlogPostService:
-    def __init__(self, blog_repo: BlogPostRepository):
+    def __init__(self, blog_repo: BlogPostRepository, tag_repo: TagRepository):
         """
         Initializes the BlogPostService with repositories for blog posts and tags.
 
@@ -15,6 +18,7 @@ class BlogPostService:
             tag_repo: An instance of the TagRepository for tag-related operations.
         """
         self.blog_repo = blog_repo
+        self.tag_repo = tag_repo
 
     async def get_recent_blogs(self, limit: int = 3):
         """
@@ -91,5 +95,103 @@ class BlogPostService:
         stmt = self.blog_repo.get_by_author_query(user)
         return await self.blog_repo.get_paginated(stmt, page, per_page)
 
-def get_blog_post_service(blog_post_repo: BlogPostRepository = Depends(get_blog_post_repository)):
-    return BlogPostService(blog_post_repo)
+    async def create_blog_post(self, title: str, content: str, image: str, author: EmailUser, tag_ids: List[int]):
+        """
+        Creates a new blog post with the provided details.
+
+        Args:
+            title (str): The title of the new blog post.
+            content (str): The content or body of the new blog post.
+            image (str): The image associated with the new blog post.
+            author (User): The author of the new blog post.
+            tag_ids (list): A list of tag IDs to associate with the new blog post.
+
+        Returns:
+            BlogPost: The newly created BlogPost object.
+        """
+        content = self.clean_content(content)
+        image_url = self.upload_image(image)
+        tags = await self.tag_repo.get_by_ids(tag_ids)
+
+        return await self.blog_repo.create(title, content, image_url, author, tags)
+
+    async def update_blog_post(self, blog_id: int, title: str, content: str, image: str, tag_ids: List[int]):
+        """
+        Updates an existing blog post with new data.
+
+        Args:
+            blog_id (int): The ID of the blog post to update.
+            title (str): The new title for the blog post.
+            content (str): The new content for the blog post.
+            image (str): The new image for the blog post (if provided).
+            tag_ids (list): A list of tag IDs to associate with the updated blog post.
+
+        Raises:
+            abort(404): If the blog post with the provided ID does not exist.
+
+        Returns:
+            BlogPost: The updated BlogPost object.
+        """
+        blog = await self.blog_repo.get_by_id(blog_id)
+        if not blog:
+            raise ValueError("Blog post not found")
+
+        tags = await self.tag_repo.get_by_ids(tag_ids)
+        content = self.clean_content(content)
+        image_url = self.upload_image(image) if image else blog.image
+
+        return await self.blog_repo.update(blog, title, content, image_url, tags)
+
+    async def delete_blog_post(self, blog_id: int):
+        """
+        Deletes a blog post by its ID.
+
+        Args:
+            blog_id (int): The ID of the blog post to delete.
+
+        Raises:
+            abort(404): If no blog post is found with the provided ID.
+
+        Returns:
+            None
+        """
+        blog = await self.blog_repo.get_by_id(blog_id)
+        if not blog:
+            raise ValueError("Blog post not found")
+
+        return await self.blog_repo.delete(blog)
+
+    def clean_content(self, content):
+        """
+        Cleans the provided content by removing any disallowed HTML tags and attributes.
+
+        Args:
+            content (str): The content (HTML) to clean.
+
+        Returns:
+            str: The cleaned content, safe for rendering in the application.
+        """
+        allowed_tags = ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"]
+        allowed_attrs = {"a": ["href", "target"], "span": ["class", "contenteditable"]}
+
+        return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
+
+    def upload_image(self, image_file):
+        """
+        Uploads an image file to Cloudinary and returns the secure URL of the uploaded image.
+
+        Args:
+            image_file (file): The image file to upload.
+
+        Returns:
+            str or None: The secure URL of the uploaded image, or None if no image is provided.
+        """
+        if not image_file:
+            return None
+
+        upload_result = cloudinary.uploader.upload(image_file)
+
+        return upload_result["secure_url"]
+
+def get_blog_post_service(blog_post_repo: Annotated[BlogPostRepository, Depends(get_blog_post_repository)], tag_repo: Annotated[TagRepository, Depends(get_tag_repository)]):
+    return BlogPostService(blog_post_repo, tag_repo)

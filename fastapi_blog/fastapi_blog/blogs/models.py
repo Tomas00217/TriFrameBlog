@@ -38,7 +38,7 @@ class BlogPost(SQLModel, table=True):
     title: str = Field(max_length=255)
     content: str
     image: Optional[str] = Field(default=None, max_length=255)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     author: Optional[EmailUser] = Relationship(back_populates="blog_posts")
     author_id: int = Field(foreign_key="email_user.id")

@@ -4,7 +4,7 @@ from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.blogs.models import BlogPost, Tag
 from fastapi_blog.blogs.schemas import PaginatedResponse
 from fastapi_blog.database import get_session
-from sqlmodel import func, select
+from sqlmodel import func, select, update
 from sqlalchemy.orm import joinedload
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -159,6 +159,67 @@ class BlogPostRepository:
             .filter(BlogPost.author_id == user.id)
             .order_by(BlogPost.created_at.desc())
         )
+
+    async def create(self, title: str, content: str, image: str, author: EmailUser, tags: List[Tag]):
+        """
+        Creates and persists a new blog post in the database.
+
+        Args:
+            title (str): The title of the new blog post.
+            content (str): The content/body of the new blog post.
+            image (str): The URL or file path to the image associated with the new blog post.
+            author (EmailUser): The author of the new blog post.
+            tags (list): A list of Tag objects to associate with the new blog post.
+
+        Returns:
+            BlogPost: The created BlogPost object.
+        """
+        blog_post = BlogPost(title=title, content=content, image=image, author=author)
+        if tags:
+            blog_post.tags = tags
+        
+        self.db.add(blog_post)
+        await self.db.commit()
+
+        return blog_post
+
+    async def update(self, blog: BlogPost, title: str, content: str, image: str, tags: List[Tag]):
+        """
+        Updates an existing blog post with new data.
+
+        Args:
+            blog (BlogPost): The blog post to update.
+            title (str): The new title for the blog post.
+            content (str): The new content for the blog post.
+            image (str): The new image URL or file path for the blog post.
+            tags (list): A list of new Tag objects to associate with the blog post.
+
+        Returns:
+            BlogPost: The updated BlogPost object.
+        """
+        stmt = (
+            update(BlogPost)
+            .where(BlogPost.id == blog.id)
+            .values(title=title, content=content, image=image)
+        )
+        await self.db.exec(stmt)
+        blog.tags = tags
+        await self.db.commit()
+
+        return blog
+
+    async def delete(self, blog: BlogPost):
+        """
+        Deletes a blog post from the database.
+
+        Args:
+            blog (BlogPost): The blog post to delete.
+
+        Returns:
+            None
+        """
+        await self.db.delete(blog)
+        await self.db.commit()
 
 def get_blog_post_repository(db: AsyncSession = Depends(get_session)):
     return BlogPostRepository(db)

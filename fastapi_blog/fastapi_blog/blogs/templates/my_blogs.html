@@ -2,7 +2,7 @@
 {% block content %}
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold">My Blogs</h1>
-    <a href="/"
+    <a href="{{ url_for("create") }}"
        class="bg-primary hover:bg-primary/80 text-primary-foreground px-4 py-2 rounded-lg shadow">Create Blog</a>
   </div>
   <div>
@@ -17,7 +17,8 @@
     {% else %}
       <p class="text-center text-lg text-muted-foreground mt-6 col-span-full">
         You have no blogs yet,
-        <a href="/" class="text-primary font-semibold hover:underline">create one here.</a>
+        <a href="{{ url_for("create") }}"
+           class="text-primary font-semibold hover:underline">create one here.</a>
       </p>
     {% endif %}
   </div>
