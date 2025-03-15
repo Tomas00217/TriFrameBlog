@@ -7,6 +7,7 @@ from fastapi_blog.auth import manager
 from fastapi_blog.services.email_user_service import EmailUserService, get_email_user_service
 from fastapi_blog.templating import templates
 from starlette.status import HTTP_303_SEE_OTHER
+from starlette_wtf import csrf_protect
 
 accounts_router = APIRouter()
 
@@ -15,20 +16,21 @@ async def login_page(
     request: Request,
     next: str | None = None
 ):
-    form = LoginForm()
+    form = await LoginForm.from_formdata(request)
 
     return templates.TemplateResponse(
         "login.html", {"request": request, "form": form, "next": next})
 
 @accounts_router.post("/login")
+@csrf_protect
 async def login(
     request: Request,
     user_service: Annotated[EmailUserService, Depends(get_email_user_service)],
     next: str | None = None
 ):
-    form = LoginForm(await request.form())
+    form = await LoginForm.from_formdata(request)
 
-    if form.validate():
+    if await form.validate_on_submit():
         user = await user_service.get_user_by_email(form.email.data)
 
         if user and user.verify_password(form.password.data):
@@ -48,19 +50,20 @@ async def login(
 async def register_page(
     request: Request,
 ):
-    form = RegisterForm()
+    form = await RegisterForm.from_formdata(request)
 
     return templates.TemplateResponse(
         "register.html", {"request": request, "form": form})
 
 @accounts_router.post("/register")
+@csrf_protect
 async def register(
     request: Request,
     user_service: Annotated[EmailUserService, Depends(get_email_user_service)]
 ):
-    form = RegisterForm(await request.form())
+    form = await RegisterForm.from_formdata(request)
 
-    if not await form.validate(user_service):
+    if not await form.validate(user_service=user_service):
         return templates.TemplateResponse("register.html",
             {"request": request, "form": form, "errors": form.errors}
         )
@@ -78,18 +81,19 @@ async def logout(request: Request):
 
 @accounts_router.get("/profile")
 async def profile_page(request: Request, user: Annotated[EmailUser, Depends(manager)]):
-    form = UsernameUpdateForm(obj=user)
+    form = await UsernameUpdateForm.from_formdata(request=request, obj=user)
 
     return templates.TemplateResponse(
         "profile.html", {"request": request, "form": form})
 
 @accounts_router.post("/profile")
+@csrf_protect
 async def profile(
     request: Request,
     user_service: Annotated[EmailUserService, Depends(get_email_user_service)],
     user: Annotated[EmailUser, Depends(manager)]
 ):
-    form = UsernameUpdateForm(await request.form())
+    form = await UsernameUpdateForm.from_formdata(request)
 
     if not form.validate():
         return templates.TemplateResponse("profile.html",

@@ -6,10 +6,15 @@ from fastapi_blog.blogs.routes import blogs_router
 from fastapi_blog.config import settings
 from fastapi_blog.exceptions import NotAuthenticatedException
 from fastapi_blog.auth import manager
+from starlette.middleware.sessions import SessionMiddleware
+from starlette_wtf import CSRFProtectMiddleware
 
 app = FastAPI(title="TriFrameBlog")
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+app.add_middleware(CSRFProtectMiddleware, csrf_secret=settings.CSRF_SECRET)
 
 manager.attach_middleware(app)
+
 app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
 app.include_router(accounts_router, prefix="/accounts", tags=["accounts"])

@@ -22,7 +22,8 @@ dependencies = [
     "passlib[bcrypt] (>=1.7.4,<2.0.0)",
     "fastapi-login (>=1.10.3,<2.0.0)",
     "itsdangerous (>=2.2.0,<3.0.0)",
-    "wtforms (>=3.2.1,<4.0.0)"
+    "wtforms (>=3.2.1,<4.0.0)",
+    "starlette-wtf (>=0.4.5,<0.5.0)"
 ]
 
 

@@ -1471,6 +1471,26 @@ anyio = ">=3.6.2,<5"
 full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.18)", "pyyaml"]
 
 [[package]]
+name = "starlette-wtf"
+version = "0.4.5"
+description = "Simple integration of Starlette and WTForms."
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+files = [
+    {file = "Starlette-WTF-0.4.5.tar.gz", hash = "sha256:411e94c19f47302fe3b12752b3c531581c0bad4cbe603a730bbe516733a99527"},
+]
+
+[package.dependencies]
+itsdangerous = "*"
+python-multipart = "*"
+starlette = "*"
+WTForms = "*"
+
+[package.extras]
+test = ["httpx", "jinja2", "pytest", "requests"]
+
+[[package]]
 name = "tqdm"
 version = "4.67.1"
 description = "Fast, Extensible Progress Meter"
@@ -1815,4 +1835,4 @@ email = ["email-validator"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "fac79adefc124742f0bc3828c4b648621d2f454add9a1f1823348beba0ccbf15"
+content-hash = "4ec5ddd70ef5b364199fe57885beed6a4f81fa6bcbf96b9212338bb4a7e5d58a"
