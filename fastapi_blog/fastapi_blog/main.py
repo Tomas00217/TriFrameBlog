@@ -6,6 +6,7 @@ from fastapi_blog.accounts.exceptions import EmailAlreadyExistsError
 from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.accounts.routes import accounts_router
 from fastapi_blog.admin import AdminIndexView, AdminView
+from fastapi_blog.blogs.admin import BlogPostView
 from fastapi_blog.blogs.models import BlogPost, Tag
 from fastapi_blog.blogs.routes import blogs_router
 from fastapi_blog.config import settings
@@ -37,7 +38,7 @@ admin = Admin(
     title="TriFrameBlog",
     index_view=AdminIndexView(label="Admin", path="/")
 )
-admin.add_view(AdminView(BlogPost))
+admin.add_view(BlogPostView(BlogPost))
 admin.add_view(AdminView(Tag))
 admin.add_view(EmailUserView(EmailUser))
 admin.mount_to(app)

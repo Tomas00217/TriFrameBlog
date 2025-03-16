@@ -26,7 +26,7 @@ async def login_page(
     return templates.TemplateResponse(
         "login.html", {"request": request, "form": form, "next": next})
 
-@accounts_router.post("/login")
+@accounts_router.post("/login", response_class=HTMLResponse)
 @csrf_protect
 async def login(
     request: Request,
@@ -72,7 +72,7 @@ async def register_page(
     return templates.TemplateResponse(
         "register.html", {"request": request, "form": form})
 
-@accounts_router.post("/register")
+@accounts_router.post("/register", response_class=HTMLResponse)
 @csrf_protect
 async def register(
     request: Request,
@@ -101,7 +101,7 @@ async def register(
             {"request": request, "form": form, "errors": form.errors}
         )
 
-@accounts_router.get("/logout")
+@accounts_router.get("/logout", response_class=HTMLResponse)
 async def logout(request: Request):
     response = RedirectResponse(url="/accounts/login")
 
@@ -117,7 +117,7 @@ async def profile_page(request: Request, user: Annotated[EmailUser, Depends(mana
     return templates.TemplateResponse(
         "profile.html", {"request": request, "form": form})
 
-@accounts_router.post("/profile")
+@accounts_router.post("/profile", response_class=HTMLResponse)
 @csrf_protect
 async def profile(
     request: Request,

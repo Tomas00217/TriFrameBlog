@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 from fastapi import Depends
 from fastapi_blog.accounts.models import EmailUser
@@ -183,7 +184,16 @@ class BlogPostRepository:
 
         return blog_post
 
-    async def update(self, blog: BlogPost, title: str, content: str, image: str, tags: List[Tag]):
+    async def update(
+        self,
+        blog: BlogPost,
+        title: str,
+        content: str,
+        image: str,
+        tags: List[Tag],
+        author: EmailUser,
+        created_at: datetime
+        ):
         """
         Updates an existing blog post with new data.
 
@@ -193,6 +203,8 @@ class BlogPostRepository:
             content (str): The new content for the blog post.
             image (str): The new image URL or file path for the blog post.
             tags (list): A list of new Tag objects to associate with the blog post.
+            author (EmailUser): The author of the blog post.
+            created_at (datetime): Time when the blog was created.
 
         Returns:
             BlogPost: The updated BlogPost object.
@@ -200,10 +212,11 @@ class BlogPostRepository:
         stmt = (
             update(BlogPost)
             .where(BlogPost.id == blog.id)
-            .values(title=title, content=content, image=image)
+            .values(title=title, content=content, image=image, created_at=created_at)
         )
         await self.db.exec(stmt)
         blog.tags = tags
+        blog.author = author
         await self.db.commit()
 
         return blog

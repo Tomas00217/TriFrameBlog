@@ -4,7 +4,7 @@ from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.admin import AdminView
 from fastapi_blog.database import async_engine
 from fastapi_blog.repositories.email_user_repository import get_email_user_repository
-from fastapi_blog.services.email_user_service import get_email_user_service
+from fastapi_blog.services.email_user_service import EmailUserService, get_email_user_service
 from starlette_admin import PasswordField
 from starlette.requests import Request
 from typing import Any, Dict
@@ -26,7 +26,7 @@ class EmailUserView(AdminView):
     exclude_fields_from_create = ["id", "password_hash"]
     exclude_fields_from_edit = ["id", "password_hash"]
 
-    async def get_user_service(self):
+    async def get_user_service(self) -> EmailUserService:
         Session = sessionmaker(
             bind=async_engine, class_=AsyncSession, expire_on_commit=False
         )
@@ -35,7 +35,7 @@ class EmailUserView(AdminView):
             user_service = get_email_user_service(email_user_repo)
             return user_service
 
-    async def validate_data(self, data: Dict, is_create: bool = True):
+    async def validate_data(self, data: Dict, is_create: bool = True) -> None:
         errors = {}
 
         if is_create and not data.get("password"):

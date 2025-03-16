@@ -1,3 +1,5 @@
+from typing import List
+from fastapi_blog.blogs.models import Tag
 from starlette_wtf import StarletteForm
 from wtforms import FileField, StringField, TextAreaField, SelectMultipleField, ValidationError
 from wtforms.widgets import ListWidget, CheckboxInput
@@ -23,11 +25,11 @@ class BlogPostForm(StarletteForm):
     image = FileField("Image", validators=[file_extension_allowed])
     content = TextAreaField("Content")
 
-    def __init__(self, all_tags, *args, **kwargs):
+    def __init__(self, all_tags: List[Tag], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tags.choices = [(tag.id, tag.name) for tag in all_tags]
 
-    def validate_tags(self, field):
+    def validate_tags(self, field) -> None:
             """
             Ensure at least one tag is selected.
             """

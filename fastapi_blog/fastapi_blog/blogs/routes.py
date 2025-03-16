@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.auth import manager
+from fastapi_blog.blogs.exceptions import BlogPostNotFoundError
 from fastapi_blog.blogs.forms import BlogPostForm, DeleteBlogPostForm
 from fastapi_blog.blogs.schemas import BlogQueryParams
 from fastapi_blog.services.blog_post_service import BlogPostService, get_blog_post_service
@@ -68,7 +69,7 @@ async def create_page(
         "create.html", {"request": request, "form": form}
     )
 
-@blogs_router.post("/blogs/create")
+@blogs_router.post("/blogs/create", response_class=HTMLResponse)
 @csrf_protect
 async def create(
     request: Request,
@@ -76,29 +77,36 @@ async def create(
     blog_post_service: Annotated[BlogPostService, Depends(get_blog_post_service)],
     user: Annotated[EmailUser, Depends(manager)]
 ):
-    all_tags = await tag_service.get_all()
-    formdata = await request.form()
-    form = BlogPostForm(all_tags=all_tags, request=request, formdata=formdata)
+    try:
+        all_tags = await tag_service.get_all()
+        formdata = await request.form()
+        form = BlogPostForm(all_tags=all_tags, request=request, formdata=formdata)
 
-    if not await form.validate_on_submit():
+        if not await form.validate_on_submit():
+            form.image.data = None
+            return templates.TemplateResponse("create.html",
+                {"request": request, "form": form, "errors": form.errors}
+            )
+
+        uploaded_file = formdata.get("image")
+        image_bytes = await uploaded_file.read() if uploaded_file else None
+
+        await blog_post_service.create_blog_post(
+            title=form.title.data,
+            content=form.content.data,
+            image=image_bytes,
+            author_id=user.id,
+            tag_ids=form.tags.data
+        )
+
+        toast(request, "Blog created successfully!", "success")
+        return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
+    except Exception as e:
         form.image.data = None
+        toast(request, "Error occured, please try again later.", "error")
         return templates.TemplateResponse("create.html",
             {"request": request, "form": form, "errors": form.errors}
         )
-
-    uploaded_file = formdata.get("image")
-    image_bytes = await uploaded_file.read() if uploaded_file else None
-
-    await blog_post_service.create_blog_post(
-        title=form.title.data,
-        content=form.content.data,
-        image=image_bytes,
-        author=user,
-        tag_ids=form.tags.data
-    )
-
-    toast(request, "Blog created successfully!", "success")
-    return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
 
 @blogs_router.get("/blogs/{blog_id}", response_class=HTMLResponse)
 async def detail(
@@ -113,12 +121,12 @@ async def detail(
         return templates.TemplateResponse(
             "detail.html", {"request": request, "blog": blog, "related_blogs": related_blogs}
         )
-    except ValueError:
+    except BlogPostNotFoundError:
         return templates.TemplateResponse(
             "404.html", {"request": request}
         )
 
-@blogs_router.get("/blogs/{blog_id}/edit")
+@blogs_router.get("/blogs/{blog_id}/edit", response_class=HTMLResponse)
 @csrf_protect
 async def edit_page(
     request: Request,
@@ -142,12 +150,12 @@ async def edit_page(
         return templates.TemplateResponse(
             "edit.html", {"request": request, "form": form, "blog": blog}
         )
-    except ValueError:
+    except BlogPostNotFoundError:
         return templates.TemplateResponse(
             "404.html", {"request": request}
         )
 
-@blogs_router.post("/blogs/{blog_id}/edit")
+@blogs_router.post("/blogs/{blog_id}/edit", response_class=HTMLResponse)
 @csrf_protect
 async def edit(
     request: Request,
@@ -187,12 +195,18 @@ async def edit(
 
         toast(request, "Blog updated successfully!", "success")
         return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
-    except ValueError:
+    except BlogPostNotFoundError:
         return templates.TemplateResponse(
             "404.html", {"request": request}
         )
+    except Exception:
+        form.image.data = None
+        toast(request, "Error occured, please try again later.", "error")
+        return templates.TemplateResponse("edit.html",
+            {"request": request, "form": form, "errors": form.errors, "blog": blog}
+        )
 
-@blogs_router.get("/blogs/{blog_id}/delete")
+@blogs_router.get("/blogs/{blog_id}/delete", response_class=HTMLResponse)
 async def delete_page(
     request: Request,
     blog_id: int,
@@ -211,12 +225,12 @@ async def delete_page(
         return templates.TemplateResponse(
             "delete.html", {"request": request, "blog": blog, "form": form}
         )
-    except ValueError:
+    except BlogPostNotFoundError:
         return templates.TemplateResponse(
             "404.html", {"request": request}
         )
     
-@blogs_router.post("/blogs/{blog_id}/delete")
+@blogs_router.post("/blogs/{blog_id}/delete", response_class=HTMLResponse)
 async def delete(
     request: Request,
     blog_id: int,
@@ -237,7 +251,12 @@ async def delete(
 
         toast(request, "Blog deleted successfully!", "success")
         return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
-    except ValueError:
+    except BlogPostNotFoundError:
         return templates.TemplateResponse(
             "404.html", {"request": request}
+        )
+    except Exception:
+        toast(request, "Error occured, please try again later.", "error")
+        return templates.TemplateResponse("delete.html",
+            {"request": request, "form": form, "errors": form.errors, "blog": blog}
         )

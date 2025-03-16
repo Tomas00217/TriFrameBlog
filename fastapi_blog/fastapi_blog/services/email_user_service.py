@@ -15,6 +15,22 @@ class EmailUserService:
         """
         self.user_repo = email_user_repo
 
+    async def get_user_by_id(self, id: int):
+        """
+        Retrieves a user by their id.
+
+        This method uses the provided id to query the repository and fetch 
+        the corresponding user. If the user is found, the method returns the 
+        user object; otherwise, it returns None.
+
+        Args:
+            id (int): The id of the user to retrieve.
+
+        Returns:
+            EmailUser or None: The user object if a user with the specified id exists, or None if no such user is found.
+        """
+        return await self.user_repo.get_by_id(id)
+
     async def get_user_by_email(self, email: str):
         """
         Retrieves a user by their email address.

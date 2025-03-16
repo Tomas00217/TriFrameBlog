@@ -21,14 +21,14 @@ class EmailUser(SQLModel, table=True):
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.password_hash)
 
-    def set_password(self, password: str):
+    def set_password(self, password: str) -> None:
         self.password_hash = pwd_context.hash(password)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.email
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.email
 
-    async def __admin_repr__(self, request: Request):
+    async def __admin_repr__(self, request: Request) -> str:
         return self.email
