@@ -22,16 +22,5 @@ class RegisterForm(StarletteForm):
         ],
     )
 
-    async def validate(self, user_service: EmailUserService, extra_validators=None):
-        if not await super().validate(extra_validators=extra_validators):
-            return False
-
-        user = await user_service.get_user_by_email(self.email.data)
-        if user:
-            self.email.errors.append("Email already registered")
-            return False
-
-        return True
-
 class UsernameUpdateForm(StarletteForm):
     username = StringField("Username", validators=[DataRequired(), Length(max=100)])

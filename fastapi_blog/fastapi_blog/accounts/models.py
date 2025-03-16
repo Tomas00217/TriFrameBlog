@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+from fastapi import Request
 from sqlmodel import Field, Relationship, SQLModel
 from passlib.context import CryptContext
 
@@ -17,10 +18,6 @@ class EmailUser(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     blog_posts: List["BlogPost"] = Relationship(back_populates="author")
 
-    def __init__(self, email: str, password: str):
-        self.email = email
-        self.set_password(password)
-    
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.password_hash)
 
@@ -31,4 +28,7 @@ class EmailUser(SQLModel, table=True):
         return self.email
 
     def __str__(self):
+        return self.email
+
+    async def __admin_repr__(self, request: Request):
         return self.email

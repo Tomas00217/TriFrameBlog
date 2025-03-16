@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+from fastapi import Request
 from fastapi_blog.accounts.models import EmailUser
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import event
 from slugify import slugify
 
 class BlogPostTag(SQLModel, table=True):
@@ -26,10 +28,14 @@ class Tag(SQLModel, table=True):
 
     def __str__(self):
         return self.name
+    
+    async def __admin_repr__(self, request: Request):
+        return self.name
 
-    def generate_slug(self):
-        if not self.slug:
-            self.slug = slugify(self.name)
+@event.listens_for(Tag, "before_insert")
+def generate_slug(mapper, connection, target):
+    if not target.slug:
+        target.slug = slugify(target.name)
 
 class BlogPost(SQLModel, table=True):
     __tablename__ = "blog_post"
