@@ -1,4 +1,3 @@
-from typing import Callable, Dict, Type
 from fastapi import Request, Response
 from fastapi.responses import RedirectResponse
 from starlette_admin.contrib.sqlmodel import ModelView

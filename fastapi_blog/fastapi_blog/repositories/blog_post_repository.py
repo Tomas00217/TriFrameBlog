@@ -79,7 +79,7 @@ class BlogPostRepository:
         Returns:
             PaginatedResponse: A paginated result with blog posts.
         """
-        count_stmt = select(func.count()).select_from(stmt)
+        count_stmt = select(func.count()).select_from(stmt.subquery())
         total_count = (await self.db.exec(count_stmt)).one()
 
         paginated_stmt = stmt.offset((page - 1) * per_page).limit(per_page)
@@ -133,6 +133,7 @@ class BlogPostRepository:
         """
         stmt = (
             select(BlogPost)
+            .join(BlogPost.tags)
             .options(joinedload(BlogPost.tags))
             .filter(Tag.id.in_([tag.id for tag in blog.tags]))
             .filter(BlogPost.id != blog.id)

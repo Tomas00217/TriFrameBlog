@@ -10,7 +10,7 @@ from fastapi_blog.services.blog_post_service import BlogPostService, get_blog_po
 from fastapi_blog.services.tag_service import TagService, get_tag_service
 from fastapi_blog.templating import templates, toast
 from starlette_wtf import csrf_protect
-from starlette.status import HTTP_303_SEE_OTHER
+from starlette.status import HTTP_303_SEE_OTHER, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
 blogs_router = APIRouter()
 
@@ -24,7 +24,7 @@ async def index(
     tags = await tag_service.get_all()
 
     return templates.TemplateResponse(
-        "index.html", {"request": request, "blogs": blogs, "tags": tags}
+        request, "index.html", {"blogs": blogs, "tags": tags}
     )
 
 @blogs_router.get("/blogs", response_class=HTMLResponse)
@@ -40,7 +40,7 @@ async def blogs(
     tags = await tag_service.get_all()
 
     return templates.TemplateResponse(
-        "blogs.html", {"request": request, "result": result, "tags": tags, "selected_tags": tag_slugs_list}
+        request, "blogs.html", {"result": result, "tags": tags, "selected_tags": tag_slugs_list}
     )
 
 @blogs_router.get("/blogs/my", response_class=HTMLResponse)
@@ -53,7 +53,7 @@ async def my_blogs(
     result = await blog_post_service.get_paginated_user_blogs(user, query_params.page, query_params.per_page)
 
     return templates.TemplateResponse(
-        "my_blogs.html", {"request": request, "result": result}
+        request, "my_blogs.html", {"result": result}
     )
 
 @blogs_router.get("/blogs/create", response_class=HTMLResponse)
@@ -66,7 +66,7 @@ async def create_page(
     form = BlogPostForm(all_tags=all_tags, request=request)
 
     return templates.TemplateResponse(
-        "create.html", {"request": request, "form": form}
+        request, "create.html", {"form": form}
     )
 
 @blogs_router.post("/blogs/create", response_class=HTMLResponse)
@@ -84,8 +84,9 @@ async def create(
 
         if not await form.validate_on_submit():
             form.image.data = None
-            return templates.TemplateResponse("create.html",
-                {"request": request, "form": form, "errors": form.errors}
+            return templates.TemplateResponse(request,
+                "create.html",
+                {"form": form, "errors": form.errors}
             )
 
         uploaded_file = formdata.get("image")
@@ -104,8 +105,9 @@ async def create(
     except Exception as e:
         form.image.data = None
         toast(request, "Error occured, please try again later.", "error")
-        return templates.TemplateResponse("create.html",
-            {"request": request, "form": form, "errors": form.errors}
+        return templates.TemplateResponse(request,
+            "create.html",
+            {"form": form, "errors": form.errors}
         )
 
 @blogs_router.get("/blogs/{blog_id}", response_class=HTMLResponse)
@@ -119,11 +121,11 @@ async def detail(
         related_blogs = await blog_post_service.get_related_blogs(blog)
 
         return templates.TemplateResponse(
-            "detail.html", {"request": request, "blog": blog, "related_blogs": related_blogs}
+            request, "detail.html", {"blog": blog, "related_blogs": related_blogs}
         )
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
-            "404.html", {"request": request}
+            request, "404.html", status_code=HTTP_404_NOT_FOUND
         )
 
 @blogs_router.get("/blogs/{blog_id}/edit", response_class=HTMLResponse)
@@ -140,7 +142,7 @@ async def edit_page(
 
         if user != blog.author and not user.is_staff:
             return templates.TemplateResponse(
-                "403.html", {"request": request}
+                request, "403.html", status_code=HTTP_403_FORBIDDEN
             )
 
         all_tags = await tag_service.get_all()
@@ -148,11 +150,11 @@ async def edit_page(
         form.tags.data = [tag.id for tag in blog.tags]
 
         return templates.TemplateResponse(
-            "edit.html", {"request": request, "form": form, "blog": blog}
+            request, "edit.html", {"form": form, "blog": blog}
         )
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
-            "404.html", {"request": request}
+            request, "404.html", status_code=HTTP_404_NOT_FOUND
         )
 
 @blogs_router.post("/blogs/{blog_id}/edit", response_class=HTMLResponse)
@@ -169,7 +171,7 @@ async def edit(
 
         if user != blog.author and not user.is_staff:
             return templates.TemplateResponse(
-                "403.html", {"request": request}
+                request, "403.html",
             )
 
         all_tags = await tag_service.get_all()
@@ -178,8 +180,9 @@ async def edit(
 
         if not await form.validate_on_submit():
             form.image.data = blog.image
-            return templates.TemplateResponse("edit.html",
-                {"request": request, "form": form, "errors": form.errors, "blog": blog}
+            return templates.TemplateResponse(request,
+                "edit.html",
+                {"form": form, "errors": form.errors, "blog": blog}
         )
 
         uploaded_file = formdata.get("image")
@@ -197,13 +200,14 @@ async def edit(
         return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
-            "404.html", {"request": request}
+            request, "404.html", status_code=HTTP_404_NOT_FOUND
         )
     except Exception:
         form.image.data = None
         toast(request, "Error occured, please try again later.", "error")
-        return templates.TemplateResponse("edit.html",
-            {"request": request, "form": form, "errors": form.errors, "blog": blog}
+        return templates.TemplateResponse(request,
+            "edit.html",
+            {"form": form, "errors": form.errors, "blog": blog}
         )
 
 @blogs_router.get("/blogs/{blog_id}/delete", response_class=HTMLResponse)
@@ -219,17 +223,17 @@ async def delete_page(
 
         if user != blog.author and not user.is_staff:
             return templates.TemplateResponse(
-                "403.html", {"request": request}
+                request, "403.html", status_code=HTTP_403_FORBIDDEN
             )
 
         return templates.TemplateResponse(
-            "delete.html", {"request": request, "blog": blog, "form": form}
+            request, "delete.html", {"blog": blog, "form": form}
         )
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
-            "404.html", {"request": request}
+            request, "404.html", status_code=HTTP_404_NOT_FOUND
         )
-    
+
 @blogs_router.post("/blogs/{blog_id}/delete", response_class=HTMLResponse)
 async def delete(
     request: Request,
@@ -243,7 +247,7 @@ async def delete(
 
         if user != blog.author and not user.is_staff:
             return templates.TemplateResponse(
-                "403.html", {"request": request}
+                request, "403.html", status_code=HTTP_403_FORBIDDEN
             )
         
         if await form.validate_on_submit():
@@ -253,10 +257,11 @@ async def delete(
         return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
-            "404.html", {"request": request}
+            request, "404.html", status_code=HTTP_404_NOT_FOUND
         )
     except Exception:
         toast(request, "Error occured, please try again later.", "error")
-        return templates.TemplateResponse("delete.html",
-            {"request": request, "form": form, "errors": form.errors, "blog": blog}
+        return templates.TemplateResponse(request,
+            "delete.html",
+            {"form": form, "errors": form.errors, "blog": blog}
         )
