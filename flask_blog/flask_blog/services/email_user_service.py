@@ -1,3 +1,5 @@
+from flask_blog.accounts.exceptions import EmailAlreadyExistsError
+
 class EmailUserService:
     def __init__(self, user_repo):
         """
@@ -19,6 +21,10 @@ class EmailUserService:
         Returns:
             EmailUser: The newly created EmailUser object.
         """
+        user = self.user_repo.get_by_email(email)
+        if user:
+            raise EmailAlreadyExistsError(email)
+
         return self.user_repo.create(email=email, password=password)
 
     def get_user_by_email(self, email):

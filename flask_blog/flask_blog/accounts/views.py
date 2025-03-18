@@ -15,18 +15,22 @@ def login():
     form = LoginForm(request.form)
     next_page = request.args.get("next")
 
-    if form.validate_on_submit():
-        user = user_service.get_user_by_email(form.email.data)
+    try: 
+        if form.validate_on_submit():
+            user = user_service.get_user_by_email(form.email.data)
 
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            
-            flash("Login successful.", "success")
-            return redirect(next_page or url_for("blogs.index"))
-        else:
-            form.email.errors.append("Your email and password did not match. Please try again.")
-
-    return render_template("login.html", form=form, next=next_page)
+            if user and user.check_password(form.password.data):
+                login_user(user)
+                
+                flash("Login successful.", "success")
+                return redirect(next_page or url_for("blogs.index"))
+            else:
+                form.email.errors.append("Your email and password did not match. Please try again.")
+    except Exception as e:
+        flash("Error occured. Please try again.", "error")
+        return render_template("login.html", form=form), 500
+    
+    return render_template("login.html", form=form, next=next_page), 400
 
 @accounts_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -36,13 +40,17 @@ def register():
 
     form = RegisterForm(request.form)
 
-    if form.validate_on_submit():
-        user_service.register_user(form.email.data, form.password1.data)
+    try:
+        if form.validate_on_submit():
+            user_service.register_user(form.email.data, form.password1.data)
 
-        flash("Register successful.", "success")
-        return redirect(url_for("accounts.login"))
+            flash("Register successful.", "success")
+            return redirect(url_for("accounts.login"))
+    except Exception as e:
+        flash("Error occured. Please try again.", "error")
+        return render_template("register.html", form=form), 500
 
-    return render_template("register.html", form=form)
+    return render_template("register.html", form=form), 400
 
 @accounts_bp.route("/logout")
 @login_required
@@ -57,10 +65,14 @@ def logout():
 def profile():
     form = UsernameUpdateForm(obj=current_user)
 
-    if form.validate_on_submit():
-        user_service.update_user(current_user, form.username.data)
+    try:
+        if form.validate_on_submit():
+            user_service.update_user(current_user, form.username.data)
 
-        flash("Your username has been updated!", "success")
-        return redirect(url_for("accounts.profile"))
+            flash("Your username has been updated!", "success")
+            return redirect(url_for("accounts.profile"))
+    except Exception as e:
+        flash("Error occured. Please try again.", "error")
+        return render_template("profile.html", form=form), 500
 
     return render_template("profile.html", form=form)
