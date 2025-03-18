@@ -9,6 +9,7 @@ from flask_blog.blogs.admin import BlogPostAdminView
 from flask_blog.blogs.models import BlogPost, Tag
 from flask_blog.config import Config, TestingConfig
 from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf
+from flask_blog.accounts.admin import EmailUserAdminView
 
 load_dotenv()
 
@@ -34,7 +35,7 @@ def create_app(testing=False):
 
     # Admin
     admin = Admin(app, name='TriFrameBlog', template_mode='bootstrap3', index_view=MyAdminIndexView())
-    admin.add_view(AdminModelView(EmailUser, db.session))
+    admin.add_view(EmailUserAdminView(EmailUser, db.session))
     admin.add_view(BlogPostAdminView(BlogPost, db.session, blog_service=container.blog_service))
     admin.add_view(AdminModelView(Tag, db.session))
 

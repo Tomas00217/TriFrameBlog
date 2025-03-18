@@ -2,6 +2,7 @@ from flask_blog.container import container
 from flask import abort, flash, redirect, render_template, request, url_for
 from flask import Blueprint
 from flask_login import current_user, login_required
+from .exceptions import BlogPostNotFoundError
 from .forms import BlogPostForm
 from werkzeug.exceptions import Forbidden
 
@@ -36,7 +37,7 @@ def detail(blog_id):
         related_blogs = blog_service.get_related_blogs(blog)
 
         return render_template("detail.html", blog=blog, related_blogs=related_blogs)
-    except ValueError as e:
+    except BlogPostNotFoundError as e:
         abort(404, description=str(e))
 
 @blogs_bp.get("/blogs/my")
@@ -52,19 +53,23 @@ def my_blogs():
 def create():
     form = BlogPostForm(formdata=request.form, tag_service=tag_service)
 
-    if form.validate_on_submit():
-        blog = blog_service.create_blog_post(
-            title=form.title.data,
-            content=form.content.data,
-            image=request.files.get("image"),
-            author=current_user,
-            tag_ids=form.tags.data
-        )
+    try: 
+        if form.validate_on_submit():
+            blog = blog_service.create_blog_post(
+                title=form.title.data,
+                content=form.content.data,
+                image=request.files.get("image"),
+                author=current_user,
+                tag_ids=form.tags.data
+            )
 
-        flash("Blog created successfully!", "success")
-        return redirect(url_for("blogs.detail", blog_id=blog.id))
+            flash("Blog created successfully!", "success")
+            return redirect(url_for("blogs.detail", blog_id=blog.id))
+    except Exception as e:
+        flash("Error occured. Please try again.", "error")
+        return render_template("create.html", form=form), 500
 
-    return render_template("create.html", form=form)
+    return render_template("create.html", form=form), 400
 
 @blogs_bp.route("/blogs/<int:blog_id>/edit", methods=["GET", "POST"])
 @login_required
@@ -80,20 +85,24 @@ def edit(blog_id):
         if request.method == "GET":
             form.tags.data = [tag.id for tag in blog.tags]
 
-        if form.validate_on_submit():
-            blog_service.update_blog_post(
-                blog_id=blog.id,
-                title=form.title.data,
-                content=form.content.data,
-                image=request.files.get("image"),
-                tag_ids=form.tags.data
-            )
+        try: 
+            if form.validate_on_submit():
+                blog_service.update_blog_post(
+                    blog_id=blog.id,
+                    title=form.title.data,
+                    content=form.content.data,
+                    image=request.files.get("image"),
+                    tag_ids=form.tags.data
+                )
 
-            flash("Blog updated successfully!", "success")
-            return redirect(url_for("blogs.detail", blog_id=blog.id))
+                flash("Blog updated successfully!", "success")
+                return redirect(url_for("blogs.detail", blog_id=blog.id))
+        except Exception as e:
+            flash("Error occured. Please try again.", "error")
+            return render_template("edit.html", form=form), 500
 
-        return render_template("edit.html", form=form, blog=blog)
-    except ValueError as e:
+        return render_template("edit.html", form=form, blog=blog), 400
+    except BlogPostNotFoundError as e:
         abort(404, description=str(e))
 
 @blogs_bp.route("/blogs/<int:blog_id>/delete", methods=["GET", "POST"])
@@ -104,13 +113,17 @@ def delete(blog_id):
 
         if current_user != blog.author and not current_user.is_staff:
             raise Forbidden
-        
+
         if request.method == "POST":
-            blog_service.delete_blog_post(blog_id)
+            try: 
+                blog_service.delete_blog_post(blog_id)
 
-            flash("Blog deleted successfully!", "success")
-            return redirect(url_for("blogs.my_blogs"))
+                flash("Blog deleted successfully!", "success")
+                return redirect(url_for("blogs.my_blogs"))
+            except Exception as e:
+                flash("Error occured. Please try again.", "error")
+                return render_template("delete.html", blog=blog), 500
 
-        return render_template("delete.html", blog=blog)
-    except ValueError as e:
+        return render_template("delete.html", blog=blog), 400
+    except BlogPostNotFoundError as e:
         abort(404, description=str(e))

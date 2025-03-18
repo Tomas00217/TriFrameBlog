@@ -1,6 +1,8 @@
 import bleach
 import cloudinary.uploader
 
+from flask_blog.blogs.exceptions import BlogPostNotFoundError
+
 class BlogPostService:
     def __init__(self, blog_repo, tag_repo):
         """
@@ -40,7 +42,7 @@ class BlogPostService:
         """
         blog = self.blog_repo.get_by_id(blog_id)
         if not blog:
-            raise ValueError("Blog post not found")
+            raise BlogPostNotFoundError()
 
         return blog
 
@@ -152,7 +154,7 @@ class BlogPostService:
         """
         blog = self.blog_repo.get_by_id(blog_id)
         if not blog:
-            raise ValueError("Blog post not found")
+            raise BlogPostNotFoundError()
 
         tags = self.tag_repo.get_by_ids(tag_ids)
         content = self.clean_content(content)
@@ -175,7 +177,7 @@ class BlogPostService:
         """
         blog = self.blog_repo.get_by_id(blog_id)
         if not blog:
-            raise ValueError("Blog post not found")
+            raise BlogPostNotFoundError()
 
         return self.blog_repo.delete(blog)
 

@@ -1,5 +1,5 @@
-from flask_login import current_user
 import pytest
+from flask_login import current_user
 from flask import url_for
 from flask_blog.accounts.models import EmailUser
 from flask_blog.extensions import db
@@ -34,10 +34,10 @@ def test_login_invalid_credentials(client):
     response = client.post(url_for("accounts.login"), data={
         "email": "wrong@example.com",
         "password": "wrongpassword"
-    }, follow_redirects=True)
+    })
 
     assert not current_user.is_authenticated
-    assert response.status_code == 200
+    assert response.status_code == 400
     assert "Your email and password did not match. Please try again.".encode() in response.data
 
 def test_register_view(client):
@@ -65,7 +65,7 @@ def test_register_passwords_dont_match(client):
     }, follow_redirects=True)
 
     assert EmailUser.query.filter_by(email="newuser@example.com").first() is None
-    assert response.status_code == 200
+    assert response.status_code == 400
     assert "Passwords must match".encode() in response.data
 
 def test_register_email_exists(client, registered_user):
@@ -78,7 +78,7 @@ def test_register_email_exists(client, registered_user):
         "password2": "Testpassword123!"
     }, follow_redirects=True)
 
-    assert response.status_code == 200
+    assert response.status_code == 400
     assert "Email already registered".encode() in response.data
 
 def test_profile_view_requires_login(client):

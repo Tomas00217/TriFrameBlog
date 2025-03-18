@@ -3,7 +3,6 @@ from flask_blog import create_app
 from flask_blog.accounts.models import EmailUser
 from flask_blog.blogs.models import BlogPost, Tag
 from flask_blog.extensions import db
-from flask_login import login_user
 import pytest
 
 @pytest.fixture(scope="function")
