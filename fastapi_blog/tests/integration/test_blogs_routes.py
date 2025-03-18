@@ -3,7 +3,6 @@ from fastapi_blog.blogs.models import BlogPost
 import pytest
 from sqlmodel import func, select
 from tests.test_utils import TestingSessionLocal
-from starlette_wtf import CSRFProtectMiddleware
 
 @pytest.mark.asyncio
 async def test_index_contains_latest_three_blogs(test_client):

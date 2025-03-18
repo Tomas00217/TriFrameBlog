@@ -10,7 +10,7 @@ from fastapi_blog.services.blog_post_service import BlogPostService, get_blog_po
 from fastapi_blog.services.tag_service import TagService, get_tag_service
 from fastapi_blog.templating import templates, toast
 from starlette_wtf import csrf_protect
-from starlette.status import HTTP_303_SEE_OTHER, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_303_SEE_OTHER, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 
 blogs_router = APIRouter()
 
@@ -86,7 +86,8 @@ async def create(
             form.image.data = None
             return templates.TemplateResponse(request,
                 "create.html",
-                {"form": form, "errors": form.errors}
+                {"form": form, "errors": form.errors},
+                status_code=HTTP_400_BAD_REQUEST
             )
 
         uploaded_file = formdata.get("image")
@@ -107,7 +108,8 @@ async def create(
         toast(request, "Error occured, please try again later.", "error")
         return templates.TemplateResponse(request,
             "create.html",
-            {"form": form, "errors": form.errors}
+            {"form": form, "errors": form.errors},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 @blogs_router.get("/blogs/{blog_id}", response_class=HTMLResponse)
@@ -182,7 +184,8 @@ async def edit(
             form.image.data = blog.image
             return templates.TemplateResponse(request,
                 "edit.html",
-                {"form": form, "errors": form.errors, "blog": blog}
+                {"form": form, "errors": form.errors, "blog": blog},
+                status_code=HTTP_400_BAD_REQUEST
         )
 
         uploaded_file = formdata.get("image")
@@ -207,7 +210,8 @@ async def edit(
         toast(request, "Error occured, please try again later.", "error")
         return templates.TemplateResponse(request,
             "edit.html",
-            {"form": form, "errors": form.errors, "blog": blog}
+            {"form": form, "errors": form.errors, "blog": blog},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 @blogs_router.get("/blogs/{blog_id}/delete", response_class=HTMLResponse)
@@ -263,5 +267,6 @@ async def delete(
         toast(request, "Error occured, please try again later.", "error")
         return templates.TemplateResponse(request,
             "delete.html",
-            {"form": form, "errors": form.errors, "blog": blog}
+            {"form": form, "errors": form.errors, "blog": blog},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR
         )

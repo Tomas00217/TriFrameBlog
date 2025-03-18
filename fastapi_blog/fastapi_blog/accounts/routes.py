@@ -7,7 +7,7 @@ from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.auth import manager
 from fastapi_blog.services.email_user_service import EmailUserService, get_email_user_service
 from fastapi_blog.templating import templates, toast
-from starlette.status import HTTP_303_SEE_OTHER
+from starlette.status import HTTP_303_SEE_OTHER, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 from starlette_wtf import csrf_protect
 
 accounts_router = APIRouter()
@@ -24,7 +24,7 @@ async def login_page(
     form = await LoginForm.from_formdata(request)
 
     return templates.TemplateResponse(
-        "login.html", {"request": request, "form": form, "next": next})
+        request, "login.html", {"form": form, "next": next})
 
 @accounts_router.post("/login", response_class=HTMLResponse)
 @csrf_protect
@@ -49,13 +49,17 @@ async def login(
             else:
                 form.email.errors.append("Your email and password did not match. Please try again.")
 
-        return templates.TemplateResponse("login.html", 
-            {"request": request, "form": form, "errors": form.errors}
+        return templates.TemplateResponse(request,
+            "login.html", 
+            {"form": form, "errors": form.errors},
+            status_code=HTTP_400_BAD_REQUEST
         )
     except Exception:
         toast(request, "Error occured, please try again later.", "error")
-        return templates.TemplateResponse("login.html",
-            {"request": request, "form": form, "errors": form.errors}
+        return templates.TemplateResponse(request,
+            "login.html",
+            {"form": form, "errors": form.errors},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -70,7 +74,7 @@ async def register_page(
     form = await RegisterForm.from_formdata(request)
 
     return templates.TemplateResponse(
-        "register.html", {"request": request, "form": form})
+        request, "register.html", {"form": form})
 
 @accounts_router.post("/register", response_class=HTMLResponse)
 @csrf_protect
@@ -82,8 +86,10 @@ async def register(
         form = await RegisterForm.from_formdata(request)
 
         if not await form.validate_on_submit():
-            return templates.TemplateResponse("register.html",
-                {"request": request, "form": form, "errors": form.errors}
+            return templates.TemplateResponse(request,
+                "register.html",
+                {"form": form, "errors": form.errors},
+                status_code=HTTP_400_BAD_REQUEST
             )
 
         await user_service.register_user(form.email.data, form.password1.data)
@@ -92,13 +98,17 @@ async def register(
         return RedirectResponse(url="/accounts/login", status_code=HTTP_303_SEE_OTHER)
     except EmailAlreadyExistsError as e:
         form.email.errors.append(e)
-        return templates.TemplateResponse("register.html",
-            {"request": request, "form": form, "errors": form.errors}
+        return templates.TemplateResponse(request,
+            "register.html",
+            {"form": form, "errors": form.errors},
+            status_code=HTTP_400_BAD_REQUEST
         )
     except Exception:
         toast(request, "Error occured, please try again later.", "error")
-        return templates.TemplateResponse("register.html",
-            {"request": request, "form": form, "errors": form.errors}
+        return templates.TemplateResponse(request,
+            "register.html",
+            {"form": form, "errors": form.errors},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 @accounts_router.get("/logout", response_class=HTMLResponse)
@@ -115,7 +125,7 @@ async def profile_page(request: Request, user: Annotated[EmailUser, Depends(mana
     form = await UsernameUpdateForm.from_formdata(request=request, obj=user)
 
     return templates.TemplateResponse(
-        "profile.html", {"request": request, "form": form})
+        request, "profile.html", {"form": form})
 
 @accounts_router.post("/profile", response_class=HTMLResponse)
 @csrf_protect
@@ -128,8 +138,10 @@ async def profile(
         form = await UsernameUpdateForm.from_formdata(request)
 
         if not await form.validate_on_submit():
-            return templates.TemplateResponse("profile.html",
-                {"request": request, "form": form, "errors": form.errors}
+            return templates.TemplateResponse(request,
+                "profile.html",
+                {"form": form, "errors": form.errors},
+                status_code=HTTP_400_BAD_REQUEST
             )
 
         await user_service.update_username(user, form.username.data)
@@ -138,6 +150,8 @@ async def profile(
         return RedirectResponse(url="/accounts/profile", status_code=HTTP_303_SEE_OTHER)
     except Exception:
         toast(request, "Error occured, please try again later.", "error")
-        return templates.TemplateResponse("profile.html",
-            {"request": request, "form": form, "errors": form.errors}
+        return templates.TemplateResponse(request,
+            "profile.html",
+            {"form": form, "errors": form.errors},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR
         )

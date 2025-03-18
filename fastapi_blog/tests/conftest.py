@@ -31,7 +31,7 @@ async def setup_test_db():
     await cleanup_test_db()
 
 @pytest_asyncio.fixture(scope="function")
-async def test_client(setup_test_db):
+async def test_client(setup_test_db, override_auth):
     """Create a test client with the test database configured."""
     async with AsyncClient(
         base_url="http://testserver", 
