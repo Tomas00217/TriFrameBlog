@@ -1,0 +1,17 @@
+<div class="flex justify-center mt-6">
+  <div class="flex items-center space-x-2 bg-card p-2 rounded-lg">
+    {% if result.prev_page %}
+      <a href="?{% if request.query_params.get('tag') %}tag={{ request.query_params.get("tag") }}&{% endif %}page=1"
+         class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">First</a>
+      <a href="?{% if request.query_params.get('tag') %}tag={{ request.query_params.get("tag") }}&{% endif %}page={{ result.prev_page }}"
+         class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">Previous</a>
+    {% endif %}
+    <span class="px-4 py-2 bg-primary text-primary-foreground rounded-md">Page {{ result.page }} of {{ result.total_pages }}</span>
+    {% if result.next_page %}
+      <a href="?{% if request.query_params.get('tag') %}tag={{ request.query_params.get("tag") }}&{% endif %}page={{ result.next_page }}"
+         class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">Next</a>
+      <a href="?{% if request.query_params.get('tag') %}tag={{ request.query_params.get("tag") }}&{% endif %}page={{ result.pages }}"
+         class="px-3 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">Last</a>
+    {% endif %}
+  </div>
+</div>

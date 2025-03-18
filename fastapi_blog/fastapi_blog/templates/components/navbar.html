@@ -1,0 +1,36 @@
+<nav class="bg-primary text-primary-foreground py-4 px-8">
+  {% block navbar %}
+    <div class="flex justify-between">
+      <ul class="flex gap-4">
+        <li>
+          <a href="{{ url_for("index") }}">Home</a>
+        </li>
+        <li>
+          <a href="{{ url_for("blogs") }}">Blogs</a>
+        </li>
+        {% if request.state.user %}
+          <li>
+            <a href="{{ url_for("my_blogs") }}">My blogs</a>
+          </li>
+          <li>
+            <a href="{{ url_for("profile") }}">Profile</a>
+          </li>
+        {% endif %}
+      </ul>
+      <ul class="flex gap-4">
+        {% if request.state.user %}
+          <li>
+            <a href="{{ url_for("logout") }}">Logout</a>
+          </li>
+        {% else %}
+          <li>
+            <a href="{{ url_for("login") }}">Login</a>
+          </li>
+          <li>
+            <a href="{{ url_for("register") }}">Register</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endblock navbar %}
+</nav>

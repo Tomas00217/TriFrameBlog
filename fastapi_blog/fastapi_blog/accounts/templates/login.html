@@ -3,7 +3,7 @@
   <div class="bg-card text-card-foreground p-4 rounded-lg w-2/3 lg:w-1/2 m-auto text-center">
     <h1 class="text-xl font-bold">Login</h1>
     {% if next %}
-      {% if current_user.is_authenticated %}
+      {% if request.state.user %}
         <p class="text-red-500 text-sm">
           Your account doesn't have access to this page. To proceed, please login with an account that has access.
         </p>
@@ -27,7 +27,7 @@
     </form>
     <p class="text-xs text-foreground">
       Doesn't have an account yet?
-      <a href="{{ url_for("accounts.register") }}"
+      <a href="{{ url_for("register") }}"
          class="text-primary hover:text-primary/80 hover:underline">Register now!</a>
     </p>
     {% for field in form %}
