@@ -1,9 +1,11 @@
 from accounts.models import EmailUser
 from blogs.managers import BlogPostManager, BlogPostQuerySet
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from cloudinary.models import CloudinaryField
 from django.utils.text import slugify
+if settings.USE_CLOUDINARY:
+    from cloudinary.models import CloudinaryField
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -23,7 +25,10 @@ class Tag(models.Model):
 class BlogPost(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
-    image = CloudinaryField("image", null=True, blank=True)
+    if settings.USE_CLOUDINARY:
+        image = CloudinaryField("image", null=True, blank=True)
+    else:
+        image = models.ImageField(upload_to="images/", null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     tags = models.ManyToManyField(Tag, related_name="blog_posts")
     author = models.ForeignKey(EmailUser, on_delete=models.CASCADE)

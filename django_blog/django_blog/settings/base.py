@@ -1,24 +1,9 @@
-'''
-Django settings for django_blog project.
-'''
-
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ["SECRET_KEY"]
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
@@ -29,7 +14,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',
     'cloudinary',
 ]
 
@@ -63,30 +47,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_blog.wsgi.application'
 
-
-# Database
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST' : 'localhost',
-        'PORT': 5432,
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD':'postgres'
-    }
-}
-
-# File storage
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ["CLOUDINARY_CLOUD_NAME"],
-    'API_KEY': os.environ["CLOUDINARY_API_KEY"],
-    'API_SECRET': os.environ["CLOUDINARY_API_SECRET"]
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
 # Password validation
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -102,31 +63,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR.parent / 'shared' / 'static'
 ]
 
 # Default primary key field type
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth
-
 LOGIN_REDIRECT_URL = "index"
 LOGOUT_REDIRECT_URL = "index"
 AUTH_USER_MODEL = 'accounts.EmailUser'
