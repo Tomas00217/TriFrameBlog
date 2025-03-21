@@ -1,24 +1,35 @@
+import os
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_admin import Admin
+from flask_blog.accounts.commands import register_commands
+from flask_blog.config import config
 from flask_blog.container import container
 from flask_blog.accounts.models import EmailUser
 from flask_blog.admin import AdminModelView, MyAdminIndexView
 from flask_blog.blogs.admin import BlogPostAdminView
 from flask_blog.blogs.models import BlogPost, Tag
-from flask_blog.config import Config, TestingConfig
 from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf
 from flask_blog.accounts.admin import EmailUserAdminView
 
 load_dotenv()
 
-def create_app(testing=False):
-    app = Flask(__name__, static_folder=str(Config.STATIC_FOLDER))
-    if testing:
-        app.config.from_object(TestingConfig)
-    else:
-        app.config.from_object(Config)
+def create_app(config_name = None):
+    app = Flask(__name__)
+    
+    if not config_name:
+        config_name = os.environ.get("FLASK_ENV", "default")
+    app.config.from_object(config[config_name])
+
+    if app.config["USE_LOCAL_STORAGE"]:
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+        @app.route('/media/<path:filename>')
+        def uploaded_file(filename):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+    app.static_folder = app.config["STATIC_FOLDER"]
 
     # Extensions
     login_manager.init_app(app)
@@ -41,6 +52,9 @@ def create_app(testing=False):
 
     login_manager.login_view = "accounts.login"
     login_manager.login_message_category = "danger"
+
+    # CLI commands
+    register_commands(app)
 
     @login_manager.user_loader
     def load_user(user_id):

@@ -8,7 +8,7 @@ import pytest
 @pytest.fixture(scope="function")
 def app():
     """Create a new Flask app instance for each test."""
-    app = create_app(testing=True)
+    app = create_app(config_name="testing")
 
     with app.app_context():
         db.create_all()

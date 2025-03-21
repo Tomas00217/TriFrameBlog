@@ -1,3 +1,4 @@
+from flask import current_app
 import pytest
 from unittest.mock import MagicMock, patch
 from datetime import datetime
@@ -291,19 +292,35 @@ def test_delete_blog_post_not_found(blog_post_service, mock_blog_repo):
     mock_blog_repo.get_by_id.assert_called_once_with(blog_id)
     mock_blog_repo.delete.assert_not_called()
 
-@patch('cloudinary.uploader.upload')
-def test_upload_image(mock_upload, blog_post_service):
-    """Test upload_image method"""
+def test_upload_image(app, blog_post_service):
+    """Test upload_image method for both local and cloud storage"""
     blog_post_service.upload_image = BlogPostService.upload_image.__get__(blog_post_service)
-
-    image_file = "test_image.jpg"
-    secure_url = "https://example.com/test_image.jpg"
-    mock_upload.return_value = {"secure_url": secure_url}
-
-    result = blog_post_service.upload_image(image_file)
-
-    mock_upload.assert_called_once_with(image_file)
-    assert result == secure_url
+    
+    mock_image = MagicMock()
+    mock_image.filename = "test_image.jpg"
+    
+    with app.app_context():
+        with patch.object(current_app.config, 'get', return_value=True) as mock_config:
+            with patch('os.path.join', return_value='/path/to/upload/123_test_image.jpg') as mock_join:
+                with patch('uuid.uuid4', return_value='123'):
+                    
+                    current_app.config['USE_LOCAL_STORAGE'] = True
+                    current_app.config['UPLOAD_FOLDER'] = '/path/to/upload'
+                    
+                    result = blog_post_service.upload_image(mock_image)
+                    
+                    mock_image.save.assert_called_once()
+                    assert result.startswith('/media/')
+                    assert 'test_image.jpg' in result
+        
+        with patch('cloudinary.uploader.upload') as mock_upload:
+            current_app.config['USE_LOCAL_STORAGE'] = False
+            mock_upload.return_value = {"secure_url": "https://example.com/test_image.jpg"}
+            
+            result = blog_post_service.upload_image(mock_image)
+            
+            mock_upload.assert_called_once_with(mock_image)
+            assert result == "https://example.com/test_image.jpg"
 
 def test_upload_image_none(blog_post_service):
     """Test upload_image method with None input"""

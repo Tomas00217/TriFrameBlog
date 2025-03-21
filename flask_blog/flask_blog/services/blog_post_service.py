@@ -1,6 +1,9 @@
+import os
+import uuid
 import bleach
 import cloudinary.uploader
 
+from flask import current_app
 from flask_blog.blogs.exceptions import BlogPostNotFoundError
 
 class BlogPostService:
@@ -209,6 +212,16 @@ class BlogPostService:
         if not image_file:
             return None
 
-        upload_result = cloudinary.uploader.upload(image_file)
+        if current_app.config['USE_LOCAL_STORAGE']:
+            filename = f"{uuid.uuid4()}_{image_file.filename}"
 
-        return upload_result["secure_url"]
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+
+            file_path = os.path.join(upload_folder, filename)
+            image_file.save(file_path)
+
+            return f"/media/{filename}"
+        else:
+            # Use Cloudinary for production
+            upload_result = cloudinary.uploader.upload(image_file)
+            return upload_result["secure_url"]
