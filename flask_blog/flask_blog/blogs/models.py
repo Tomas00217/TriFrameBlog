@@ -34,7 +34,7 @@ class BlogPost(db.Model):
     title: Mapped[str] = mapped_column(String(255))
     content: Mapped[str] = mapped_column(Text)
     image: Mapped[Optional[str]] = mapped_column(String(255))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     tags: Mapped[List[Tag]] = relationship("Tag", secondary=blogpost_tags, backref="blog_posts")
     author_id: Mapped[int] = mapped_column(ForeignKey("email_user.id"))

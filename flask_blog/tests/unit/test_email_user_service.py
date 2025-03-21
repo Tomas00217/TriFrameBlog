@@ -92,6 +92,59 @@ def test_register_user_email_already_exists(email_user_service, mock_user_repo):
     mock_user_repo.get_by_email.assert_called_once_with(email)
     mock_user_repo.create.assert_not_called()
 
+def test_create_user_successful(email_user_service, mock_user_repo):
+    """
+    Tests create_user when creation is successful.
+    """
+    email = "newcreated@example.com"
+    password = "password123"
+    username = "newuser"
+    is_active = True
+    is_staff = False
+    created_at = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    mock_user = MockEmailUser(email=email, username=username, 
+                             is_active=is_active, is_staff=is_staff,
+                             created_at=created_at)
+    mock_user_repo.get_by_email.return_value = None
+    mock_user_repo.create.return_value = mock_user
+
+    result = email_user_service.create_user(
+        email=email, 
+        password=password, 
+        username=username, 
+        is_active=is_active, 
+        is_staff=is_staff, 
+        created_at=created_at
+    )
+
+    mock_user_repo.get_by_email.assert_called_once_with(email)
+    mock_user_repo.create.assert_called_once_with(
+        email, password, username, is_active, is_staff, created_at
+    )
+    assert result == mock_user
+    assert result.email == email
+    assert result.username == username
+    assert result.is_active == is_active
+    assert result.is_staff == is_staff
+    assert result.created_at == created_at
+
+def test_create_user_email_already_exists(email_user_service, mock_user_repo):
+    """
+    Tests create_user when the email already exists.
+    """
+    email = "existing@example.com"
+    password = "password123"
+    mock_user = MockEmailUser(email=email)
+    mock_user_repo.get_by_email.return_value = mock_user
+
+    with pytest.raises(EmailAlreadyExistsError) as exc_info:
+        email_user_service.create_user(email, password)
+
+    assert email in str(exc_info.value)
+    mock_user_repo.get_by_email.assert_called_once_with(email)
+    mock_user_repo.create.assert_not_called()
+
 def test_update_user(email_user_service, mock_user_repo):
     """
     Tests updating a user's username.

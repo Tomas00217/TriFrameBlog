@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from flask_blog.accounts.exceptions import EmailAlreadyExistsError
 
 class EmailUserService:
@@ -57,3 +58,39 @@ class EmailUserService:
         """
         user.username = new_username
         self.user_repo.update(user)
+
+    def create_user(self, 
+            email, 
+            password, 
+            username = None, 
+            is_active = True, 
+            is_staff = False, 
+            created_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        ):
+        """
+        Creates a new user in the system.
+
+        Checks if the provided email is already in use. If the email exists, raises 
+        `EmailAlreadyExistsError`. Otherwise, creates a new user with the provided 
+        details and returns the user object.
+
+        Parameters:
+            email (str): The email address of the user. Must be unique.
+            password (str): The password for the user (will be hashed).
+            username (Optional[str]): The username of the user (default is None).
+            is_active (bool): Flag indicating if the account is active (default is True).
+            is_staff (bool): Flag indicating if the user has staff privileges (default is False).
+            created_at (datetime): Timestamp of user creation (defaults to current UTC time).
+
+        Returns:
+            EmailUser: The newly created user object.
+
+        Raises:
+            EmailAlreadyExistsError: If the provided email is already in use.
+        """
+        user = self.user_repo.get_by_email(email)
+        if user:
+            raise EmailAlreadyExistsError(email)
+
+        new_user = self.user_repo.create(email, password, username, is_active, is_staff, created_at)
+        return new_user

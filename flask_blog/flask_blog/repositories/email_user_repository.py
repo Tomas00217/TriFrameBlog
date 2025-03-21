@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from flask_blog.accounts.models import EmailUser
 from flask_blog.extensions import db
 from sqlalchemy import select
@@ -18,7 +19,14 @@ class EmailUserRepository:
 
         return result
 
-    def create(self, email, password):
+    def create(self,
+            email,
+            password,
+            username = None,
+            is_active = True,
+            is_staff = False,
+            created_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        ):
         """
         Creates a new EmailUser.
 
@@ -30,6 +38,11 @@ class EmailUserRepository:
             EmailUser: The newly created EmailUser object.
         """
         user = EmailUser(email=email, password=password)
+        user.username = username
+        user.is_active = is_active
+        user.is_staff = is_staff
+        user.created_at = created_at
+
         db.session.add(user)
         db.session.commit()
 
