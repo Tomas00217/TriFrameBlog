@@ -29,5 +29,3 @@ CLOUDINARY_API_SECRET=your_api_secret
 Write-Host "Building and starting Docker containers..." -ForegroundColor Green
 docker-compose -f docker-compose.yml build
 docker-compose -f docker-compose.yml up
-
-# This command will show logs in the terminal and can be stopped with Ctrl+C
