@@ -35,5 +35,21 @@ services:
              flask create-superuser &&
              flask run --host=0.0.0.0 --port=5000"
 
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+      - ./media:/app/media
+      - ../shared:/shared
+    environment:
+      - TESTING=True
+    depends_on:
+      - db
+    command: pytest
+    profiles:
+      - test
+
 volumes:
   postgres_data:

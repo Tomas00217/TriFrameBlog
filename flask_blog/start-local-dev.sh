@@ -30,5 +30,4 @@ fi
 
 # Build and start the containers
 echo -e "Building and starting Docker containers..."
-docker-compose -f docker-compose.yml build
-docker-compose -f docker-compose.yml up
+docker-compose -f docker-compose.yml up --build
