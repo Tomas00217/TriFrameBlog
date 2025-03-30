@@ -18,6 +18,7 @@ from starlette_admin.contrib.sqlmodel import Admin
 
 app = FastAPI(title="TriFrameBlog")
 app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
+app.mount("/media", StaticFiles(directory=settings.UPLOAD_FOLDER), name="media")
 
 # Middleware
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)

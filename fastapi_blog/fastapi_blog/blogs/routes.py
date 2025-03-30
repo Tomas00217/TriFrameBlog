@@ -11,7 +11,7 @@ from fastapi_blog.services.tag_service import TagService, get_tag_service
 from fastapi_blog.templating import templates, toast
 from starlette_wtf import csrf_protect
 from starlette.status import HTTP_303_SEE_OTHER, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
-
+from fastapi_blog.config import settings
 blogs_router = APIRouter()
 
 @blogs_router.get("/", response_class=HTMLResponse)
@@ -91,18 +91,17 @@ async def create(
             )
 
         uploaded_file = formdata.get("image")
-        image_bytes = await uploaded_file.read() if uploaded_file else None
 
-        await blog_post_service.create_blog_post(
+        blog = await blog_post_service.create_blog_post(
             title=form.title.data,
             content=form.content.data,
-            image=image_bytes,
+            image=uploaded_file,
             author_id=user.id,
             tag_ids=form.tags.data
         )
 
         toast(request, "Blog created successfully!", "success")
-        return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/blogs/{blog.id}", status_code=HTTP_303_SEE_OTHER)
     except Exception as e:
         form.image.data = None
         toast(request, "Error occured, please try again later.", "error")
@@ -189,18 +188,17 @@ async def edit(
         )
 
         uploaded_file = formdata.get("image")
-        image_bytes = await uploaded_file.read() if uploaded_file else None
 
         await blog_post_service.update_blog_post(
             blog_id=blog.id,
             title=form.title.data,
             content=form.content.data,
-            image=image_bytes,
+            image=uploaded_file,
             tag_ids=form.tags.data
         )
 
         toast(request, "Blog updated successfully!", "success")
-        return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/blogs/{blog_id}", status_code=HTTP_303_SEE_OTHER)
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
             request, "404.html", status_code=HTTP_404_NOT_FOUND

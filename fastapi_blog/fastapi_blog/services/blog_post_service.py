@@ -1,11 +1,14 @@
 from datetime import datetime
+import os
 from typing import Annotated, List, Optional
+import uuid
 import bleach
 import cloudinary.uploader
 from fastapi import Depends
 from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.blogs.exceptions import BlogPostNotFoundError
 from fastapi_blog.blogs.models import BlogPost
+from fastapi_blog.config import settings
 from fastapi_blog.repositories.blog_post_repository import BlogPostRepository, get_blog_post_repository
 from fastapi_blog.repositories.email_user_repository import EmailUserRepository, get_email_user_repository
 from fastapi_blog.repositories.tag_repository import TagRepository, get_tag_repository
@@ -126,8 +129,8 @@ class BlogPostService:
         blog_id: int,
         title: str,
         content: str,
-        image: str,
         tag_ids: List[int],
+        image: str = None,
         author_id: Optional[int] = None,
         created_at: Optional[datetime] = None
         ):
@@ -161,7 +164,7 @@ class BlogPostService:
 
         tags = await self.tag_repo.get_by_ids(tag_ids)
         content = self.clean_content(content)
-        image_url = self.upload_image(image) if image else blog.image
+        image_url = self.upload_image(image) if image and image.filename else blog.image
 
         return await self.blog_repo.update(blog, title, content, image_url, tags, author, created_at)
 
@@ -209,12 +212,24 @@ class BlogPostService:
         Returns:
             str or None: The secure URL of the uploaded image, or None if no image is provided.
         """
-        if not image_file:
+        if not image_file or not image_file.filename:
             return None
 
-        upload_result = cloudinary.uploader.upload(image_file)
+        if settings.USE_CLOUDINARY:
+            upload_result = cloudinary.uploader.upload(image_file.file)
+            return upload_result["secure_url"]
 
-        return upload_result["secure_url"]
+        upload_folder = settings.UPLOAD_FOLDER
+        os.makedirs(upload_folder, exist_ok=True)
+
+        filename = f"{uuid.uuid4()}_{image_file.filename}"
+        file_path = os.path.join(upload_folder, filename)
+        
+        with open(file_path, 'wb') as buffer:
+            image_file.file.seek(0)
+            buffer.write(image_file.file.read())
+
+        return f"/media/{filename}"
 
 def get_blog_post_service(
     blog_post_repo: Annotated[BlogPostRepository, Depends(get_blog_post_repository)],

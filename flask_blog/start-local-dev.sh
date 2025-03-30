@@ -32,5 +32,3 @@ fi
 echo -e "Building and starting Docker containers..."
 docker-compose -f docker-compose.yml build
 docker-compose -f docker-compose.yml up
-
-# This command will show logs in the terminal and can be stopped with Ctrl+C

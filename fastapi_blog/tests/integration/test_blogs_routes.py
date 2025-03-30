@@ -208,7 +208,7 @@ async def test_edit_blog(auth_client):
     )
 
     assert response.status_code == 303
-    assert "blogs/my" in response.headers["Location"]
+    assert f"blogs/{blog.id}" in response.headers["Location"]
 
     async with TestingSessionLocal() as session:
         updated_blog = await session.get(BlogPost, blog.id)
