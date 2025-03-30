@@ -27,5 +27,4 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 # Build and start the containers
 Write-Host "Building and starting Docker containers..." -ForegroundColor Green
-docker-compose -f docker-compose.yml build
-docker-compose -f docker-compose.yml up
+docker-compose -f docker-compose.yml up --build

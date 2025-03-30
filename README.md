@@ -27,12 +27,60 @@ A simple blog web application implemented by the three frameworks.
 - Blogs can have various tags.
 - Blogs can be filtered by tags or searched by title.
 
+---
+
 ### Non-functional requirements
 
 - The application should have a straightforward navigation for operations.
 - The application should validate inputs.
 - Passwords must be hashed and securely stored.
 - Code should be modular and well-documented.
+
+---
+
+### Admin Interface
+
+Each implementation also includes an **`/admin` interface**, where an admin user can manage blog content and other entities.
+
+**Admin Credentials (default):**
+
+- **Email:** `admin@blog.com`
+- **Password:** `admin`
+
+## Running the app locally
+
+### Prerequisites
+
+#### **Docker**
+
+Docker is required to containerize and run this application.
+
+Installation: Follow the official Docker installation guide for your operating system.
+
+- **Install Docker**: [Docker Installation Guide](https://docs.docker.com/get-started/get-docker/)
+
+To verify Docker is installed, run the following command in your terminal:
+
+```bash
+docker --version
+```
+
+---
+
+### Running the App
+
+You can choose from three implementations. Follow the instructions below based on the implementation you'd like to run:
+
+- **Django Implementation**
+  Navigate to the `/django_blog` directory and follow the instructions in the [README](./django_blog/README.md).
+
+- **Flask Implementation**
+  Navigate to the `/flask_blog` directory and follow the instructions in the [README](./flask_blog/README.md).
+
+- **FastAPI Implementation**
+  Navigate to the `/fastapi_blog` directory and follow the instructions in the [README](./fastapi_blog/README.md).
+
+---
 
 ### Design
 
