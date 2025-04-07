@@ -3,13 +3,13 @@ from accounts.models import EmailUser
 from django.db import models
 
 class BlogPostQuerySet(models.QuerySet):
-    def recent(self, limit: int = 3):
+    def recent(self, limit: Optional[int] = 3):
         """
         Get most recent blogs.
         """
         return self.order_by("-created_at")[:limit]
 
-    def related_to(self, blog, limit:int = 3):
+    def related_to(self, blog, limit: Optional[int] = 3):
         """
         Get random blogs related by tags.
         """
