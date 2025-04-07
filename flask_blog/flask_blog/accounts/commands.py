@@ -10,7 +10,7 @@ from flask_blog.extensions import db
 @click.option('--email', default=None, help='Superuser email')
 @click.option('--password', default=None, help='Superuser password')
 @with_appcontext
-def create_superuser(email, password):
+def create_superuser(email: str, password: str):
     """Creates a superuser account."""
     user_service = container.user_service
 

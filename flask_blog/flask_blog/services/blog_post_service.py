@@ -1,13 +1,18 @@
 import os
+from typing import List, Optional
 import uuid
 import bleach
 import cloudinary.uploader
 
 from flask import current_app
+from flask_blog.accounts.models import EmailUser
 from flask_blog.blogs.exceptions import BlogPostNotFoundError
+from flask_blog.blogs.models import BlogPost
+from flask_blog.repositories.blog_post_repository import BlogPostRepository
+from flask_blog.repositories.tag_repository import TagRepository
 
 class BlogPostService:
-    def __init__(self, blog_repo, tag_repo):
+    def __init__(self, blog_repo: BlogPostRepository, tag_repo: TagRepository):
         """
         Initializes the BlogPostService with repositories for blog posts and tags.
 
@@ -18,7 +23,7 @@ class BlogPostService:
         self.blog_repo = blog_repo
         self.tag_repo = tag_repo
 
-    def get_recent_blogs(self, limit=3):
+    def get_recent_blogs(self, limit: Optional[int] = 3):
         """
         Retrieves the most recent blog posts.
 
@@ -30,7 +35,7 @@ class BlogPostService:
         """
         return self.blog_repo.get_recent(limit=limit)
 
-    def get_blog_by_id(self, blog_id):
+    def get_blog_by_id(self, blog_id: int):
         """
         Retrieves a single blog post by its unique identifier (ID).
 
@@ -49,7 +54,7 @@ class BlogPostService:
 
         return blog
 
-    def get_all_blogs(self, tag_slugs=None, search=None):
+    def get_all_blogs(self, tag_slugs: Optional[List[str]] = None, search: Optional[str] = None):
         """
         Retrieves all blog posts, optionally filtered by tags or search term.
 
@@ -62,7 +67,7 @@ class BlogPostService:
         """
         return self.blog_repo.get_all(tag_slugs=tag_slugs, search=search)
 
-    def get_paginated_blogs(self, tag_slugs=None, search=None, page=1, per_page=6):
+    def get_paginated_blogs(self, tag_slugs: Optional[List[str]] = None, search: Optional[str] = None, page: Optional[int] = 1, per_page: Optional[int] = 6):
         """
         Retrieves paginated blog posts, optionally filtered by tags or search term.
 
@@ -78,7 +83,7 @@ class BlogPostService:
         stmt = self.blog_repo.get_all_query(tag_slugs, search)
         return self.blog_repo.get_paginated(stmt, page, per_page)
 
-    def get_user_blogs(self, user):
+    def get_user_blogs(self, user: EmailUser):
         """
         Retrieves all blog posts authored by a specific user.
 
@@ -90,7 +95,7 @@ class BlogPostService:
         """
         return self.blog_repo.get_by_author(user)
 
-    def get_paginated_user_blogs(self, user, page=1, per_page=6):
+    def get_paginated_user_blogs(self, user: EmailUser, page: Optional[int] = 1, per_page: Optional[int] = 6):
         """
         Retrieves paginated blog posts authored by a specific user.
 
@@ -105,7 +110,7 @@ class BlogPostService:
         stmt = self.blog_repo.get_by_author_query(user)
         return self.blog_repo.get_paginated(stmt, page, per_page)
 
-    def get_related_blogs(self, blog, limit=3):
+    def get_related_blogs(self, blog: BlogPost, limit: Optional[int] = 3):
         """
         Retrieves related blog posts based on shared tags, excluding the current blog.
 
@@ -118,7 +123,7 @@ class BlogPostService:
         """
         return self.blog_repo.get_related(blog, limit=limit)
 
-    def create_blog_post(self, title, content, image, author, tag_ids):
+    def create_blog_post(self, title: str, content: str, image: str, author: EmailUser, tag_ids: List[int]):
         """
         Creates a new blog post with the provided details.
 
@@ -126,7 +131,7 @@ class BlogPostService:
             title (str): The title of the new blog post.
             content (str): The content or body of the new blog post.
             image (str): The image associated with the new blog post.
-            author (User): The author of the new blog post.
+            author (EmailUser): The author of the new blog post.
             tag_ids (list): A list of tag IDs to associate with the new blog post.
 
         Returns:
@@ -138,7 +143,7 @@ class BlogPostService:
 
         return self.blog_repo.create(title, content, image_url, author, tags)
 
-    def update_blog_post(self, blog_id, title, content, image, tag_ids):
+    def update_blog_post(self, blog_id: int, title: str, content: str, image: str, tag_ids: List[int]):
         """
         Updates an existing blog post with new data.
 
@@ -165,7 +170,7 @@ class BlogPostService:
 
         return self.blog_repo.update(blog, title, content, image_url, tags)
 
-    def delete_blog_post(self, blog_id):
+    def delete_blog_post(self, blog_id: int):
         """
         Deletes a blog post by its ID.
 
@@ -184,7 +189,7 @@ class BlogPostService:
 
         return self.blog_repo.delete(blog)
 
-    def clean_content(self, content):
+    def clean_content(self, content: str):
         """
         Cleans the provided content by removing any disallowed HTML tags and attributes.
 
@@ -201,7 +206,8 @@ class BlogPostService:
 
     def upload_image(self, image_file):
         """
-        Uploads an image file to Cloudinary and returns the secure URL of the uploaded image.
+        Uploads an image file to Cloudinary and returns the secure URL of the uploaded image if cloudinary is enabled.
+        Otherwise uploads to local storage.
 
         Args:
             image_file (file): The image file to upload.
@@ -222,6 +228,5 @@ class BlogPostService:
 
             return f"/media/{filename}"
         else:
-            # Use Cloudinary for production
             upload_result = cloudinary.uploader.upload(image_file)
             return upload_result["secure_url"]

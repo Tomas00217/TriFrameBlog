@@ -24,10 +24,10 @@ class EmailUser(UserMixin, db.Model):
     def __repr__(self):
         return self.email
 
-    def set_password(self, password):
+    def set_password(self, password: str):
         """Hashes and sets the password"""
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    def check_password(self, password):
+    def check_password(self, password: str):
         """Checks the password hash"""
         return bcrypt.check_password_hash(self.password_hash, password)

@@ -1,8 +1,11 @@
 from datetime import datetime, timezone
+from typing import Optional
 from flask_blog.accounts.exceptions import EmailAlreadyExistsError
+from flask_blog.accounts.models import EmailUser
+from flask_blog.repositories.email_user_repository import EmailUserRepository
 
 class EmailUserService:
-    def __init__(self, user_repo):
+    def __init__(self, user_repo: EmailUserRepository):
         """
         Initializes the EmailUserService with a repository for user-related operations.
 
@@ -11,7 +14,7 @@ class EmailUserService:
         """
         self.user_repo = user_repo
 
-    def register_user(self, email, password):
+    def register_user(self, email: str, password: str):
         """
         Registers a new user by hashing their password and saving their data.
 
@@ -28,7 +31,7 @@ class EmailUserService:
 
         return self.user_repo.create(email=email, password=password)
 
-    def get_user_by_email(self, email):
+    def get_user_by_email(self, email: str):
         """
         Retrieves a user by their email address.
 
@@ -45,7 +48,7 @@ class EmailUserService:
         """
         return self.user_repo.get_by_email(email)
 
-    def update_user(self, user, new_username):
+    def update_user(self, user: EmailUser, new_username: str):
         """
         Updates the user's profile with a new username.
 
@@ -60,12 +63,12 @@ class EmailUserService:
         self.user_repo.update(user)
 
     def create_user(self, 
-            email, 
-            password, 
-            username = None, 
-            is_active = True, 
-            is_staff = False, 
-            created_at = datetime.now(timezone.utc).replace(tzinfo=None)
+            email: str, 
+            password: str, 
+            username: Optional[str] = None, 
+            is_active: Optional[bool] = True, 
+            is_staff: Optional[bool] = False, 
+            created_at: Optional[datetime] = datetime.now(timezone.utc).replace(tzinfo=None)
         ):
         """
         Creates a new user in the system.
@@ -78,9 +81,9 @@ class EmailUserService:
             email (str): The email address of the user. Must be unique.
             password (str): The password for the user (will be hashed).
             username (Optional[str]): The username of the user (default is None).
-            is_active (bool): Flag indicating if the account is active (default is True).
-            is_staff (bool): Flag indicating if the user has staff privileges (default is False).
-            created_at (datetime): Timestamp of user creation (defaults to current UTC time).
+            is_active (Optional[bool]): Flag indicating if the account is active (default is True).
+            is_staff (Optional[bool]): Flag indicating if the user has staff privileges (default is False).
+            created_at (Optional[datetime]): Timestamp of user creation (defaults to current UTC time).
 
         Returns:
             EmailUser: The newly created user object.

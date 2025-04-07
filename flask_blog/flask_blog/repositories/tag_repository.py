@@ -1,3 +1,4 @@
+from typing import List
 from flask_blog.blogs.models import Tag
 from flask_blog.extensions import db
 from sqlalchemy import select
@@ -13,7 +14,7 @@ class TagRepository:
         stmt = select(Tag)
         return db.session.execute(stmt).scalars().all()
 
-    def get_by_ids(self, tag_ids):
+    def get_by_ids(self, tag_ids: List[int]):
         """
         Retrieves multiple tags by their unique identifiers (IDs).
 
