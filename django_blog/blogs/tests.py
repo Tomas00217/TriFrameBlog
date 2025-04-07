@@ -1,15 +1,16 @@
+from accounts.models import EmailUser
 from blogs.models import BlogPost, Tag
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-def create_blog(title, content, author):
+def create_blog(title: str, content: str, author: EmailUser):
     """
     Create a blog with the given `title`, `content`, and `author`.
     """
     return BlogPost.objects.create(title=title, content=content, author=author)
 
-def create_tag(name):
+def create_tag(name: str):
     """
     Create a tag with the given `name`.
     """
