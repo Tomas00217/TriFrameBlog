@@ -162,7 +162,7 @@ class MyBlogsViewTests(TestCase):
 
     def test_my_blogs_view_requires_login(self):
         """
-        Unathenticated user is redirected to login.
+        Unauthenticated user is redirected to login.
         """
         response = self.client.get(reverse("my_blogs"))
         self.assertRedirects(response, "/accounts/login/?next=/blogs/my")
@@ -185,7 +185,7 @@ class BlogCreateViewTests(TestCase):
 
     def test_create_blog_requires_login(self):
         """
-        Unathenticated user is redirected to login.
+        Unauthenticated user is redirected to login.
         """
         response = self.client.get(reverse("create"))
         self.assertRedirects(response, "/accounts/login/?next=/blogs/create")
@@ -217,7 +217,7 @@ class BlogEditViewTests(TestCase):
 
     def test_edit_blog_requires_login(self):
         """
-        Unathenticated user is redirected to login.
+        Unauthenticated user is redirected to login.
         """
         response = self.client.get(reverse("edit", args=[self.blog.id]))
         self.assertRedirects(response, f"/accounts/login/?next=/blogs/{self.blog.id}/edit")
@@ -258,7 +258,7 @@ class BlogDeleteViewTests(TestCase):
 
     def test_delete_blog_requires_login(self):
         """
-        Unathenticated user is redirected to login.
+        Unauthenticated user is redirected to login.
         """
         response = self.client.get(reverse("delete", args=[self.blog.id]))
         self.assertRedirects(response, f"/accounts/login/?next=/blogs/{self.blog.id}/delete")

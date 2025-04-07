@@ -76,7 +76,7 @@ class ProfileViewTests(TestCase):
 
     def test_profile_view_requires_login(self):
         """
-        Unathenticated user is redirected to login.
+        Unauthenticated user is redirected to login.
         """
         response = self.client.get(reverse("profile"))
         self.assertRedirects(response, "/accounts/login/?next=/accounts/profile/")
