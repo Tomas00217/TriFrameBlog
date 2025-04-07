@@ -1,9 +1,11 @@
+from typing import List, Optional
+from flask_blog.accounts.models import EmailUser
 from flask_blog.extensions import db
 from flask_blog.blogs.models import BlogPost, Tag
 from sqlalchemy import func, select, update
 
 class BlogPostRepository:
-    def get_all_query(self, tag_slugs=None, search=None):
+    def get_all_query(self, tag_slugs: Optional[List[str]] = None, search: Optional[str] = None):
         """
         Constructs a query to retrieve blog posts, optionally filtered by tags or search terms.
 
@@ -26,7 +28,7 @@ class BlogPostRepository:
         stmt = stmt.order_by(BlogPost.created_at.desc()).distinct()
         return stmt
     
-    def get_all(self, tag_slugs=None, search=None):
+    def get_all(self, tag_slugs: Optional[List[str]] = None, search: Optional[str] = None):
         """
         Executes the constructed query to retrieve all blog posts, optionally filtered by tags or search terms.
 
@@ -41,7 +43,7 @@ class BlogPostRepository:
 
         return db.session.execute(stmt).scalars()
 
-    def get_paginated(self, stmt, page=1, per_page=6):
+    def get_paginated(self, stmt, page: Optional[int] = 1, per_page: Optional[int] = 6):
         """
         Paginates a given query statement.
 
@@ -55,7 +57,7 @@ class BlogPostRepository:
         """
         return db.paginate(stmt, page=page, per_page=per_page)
 
-    def get_by_id(self, blog_id):
+    def get_by_id(self, blog_id: int):
         """
         Retrieves a blog post by its unique identifier (ID).
 
@@ -69,7 +71,7 @@ class BlogPostRepository:
 
         return db.session.execute(stmt).scalar_one_or_none()
 
-    def get_by_author_query(self, user):
+    def get_by_author_query(self, user: EmailUser):
         """
         Constructs a query to retrieve all blog posts authored by a specific user.
 
@@ -81,7 +83,7 @@ class BlogPostRepository:
         """
         return select(BlogPost).filter(BlogPost.author_id == user.id).order_by(BlogPost.created_at.desc())
 
-    def get_by_author(self, user):
+    def get_by_author(self, user: EmailUser):
         """
         Executes a query to retrieve all blog posts authored by a specific user.
 
@@ -95,7 +97,7 @@ class BlogPostRepository:
 
         return db.session.execute(stmt).scalars()
     
-    def get_recent(self, limit=3):
+    def get_recent(self, limit: Optional[int] = 3):
         """
         Retrieves the most recent blog posts, ordered by creation date.
 
@@ -109,7 +111,7 @@ class BlogPostRepository:
 
         return db.session.execute(stmt).scalars().all()
 
-    def get_related(self, blog, limit=3):
+    def get_related(self, blog: BlogPost, limit: Optional[int] = 3):
         """
         Retrieves related blog posts based on shared tags, excluding the current blog post.
 
@@ -132,7 +134,7 @@ class BlogPostRepository:
 
         return db.session.execute(stmt).scalars().all()
 
-    def create(self, title, content, image, author, tags):
+    def create(self, title: str, content: str, image: str, author: EmailUser, tags: List[Tag]):
         """
         Creates and persists a new blog post in the database.
 
@@ -154,7 +156,7 @@ class BlogPostRepository:
 
         return blog_post
 
-    def update(self, blog, title, content, image, tags):
+    def update(self, blog: BlogPost, title: str, content: str, image: str, tags: List[Tag]):
         """
         Updates an existing blog post with new data.
 
@@ -179,7 +181,7 @@ class BlogPostRepository:
 
         return blog
 
-    def delete(self, blog):
+    def delete(self, blog: BlogPost):
         """
         Deletes a blog post from the database.
 

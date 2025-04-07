@@ -4,7 +4,7 @@ class EmailUserManager(BaseUserManager):
     """
     Manager where email is the unique identifier for authentication instead of username.
     """
-    def create_user(self, email, password, **extra_fields):
+    def create_user(self, email: str, password: str, **extra_fields):
         """
         Create and save a user with the given email and password.
         """
@@ -20,7 +20,7 @@ class EmailUserManager(BaseUserManager):
         user.save(using=self.db)
         return user
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superuser(self, email: str, password: str, **extra_fields):
         """
         Create and save a SuperUser with the given email and password.
         """

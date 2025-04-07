@@ -1,4 +1,5 @@
-from wtforms import PasswordField
+from typing import Any
+from wtforms import Form, PasswordField
 from flask_blog.admin import AdminModelView
 from wtforms.validators import DataRequired
 
@@ -7,7 +8,7 @@ class EmailUserAdminView(AdminModelView):
     form_excluded_columns = ["password_hash"]
 
 
-    def on_model_change(self, form, model, is_created):
+    def on_model_change(self, form: Form, model: Any, is_created: bool):
         if form.password.data:
             model.set_password(form.password.data)
 

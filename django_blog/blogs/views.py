@@ -1,4 +1,3 @@
-import bleach
 from blogs.models import BlogPost, Tag
 from .forms import BlogPostForm
 from django.shortcuts import redirect, render, get_object_or_404
@@ -27,7 +26,7 @@ def blogs(request):
 
     return render(request, "blogs/blogs.html", {"blogs": blogs, "tags": tags, "selected_tags": tag_slugs_list})
 
-def detail(request, blog_id):
+def detail(request, blog_id: int):
     blog = get_object_or_404(BlogPost, pk=blog_id)
     related_blogs = BlogPost.objects.related_to(blog)
 
@@ -58,7 +57,7 @@ def create(request):
     return render(request, "blogs/create.html", {"form": form})
 
 @login_required(login_url='/accounts/login/')
-def edit(request, blog_id):
+def edit(request, blog_id: int):
     blog = get_object_or_404(BlogPost, pk=blog_id)
 
     if request.user != blog.author and not request.user.is_staff:
@@ -77,7 +76,7 @@ def edit(request, blog_id):
     return render(request, "blogs/edit.html", {"form": form, "blog": blog})
 
 @login_required(login_url='/accounts/login/')
-def delete(request, blog_id):
+def delete(request, blog_id: int):
     blog = get_object_or_404(BlogPost, pk=blog_id)
     
     if request.user != blog.author and not request.user.is_staff:

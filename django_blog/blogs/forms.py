@@ -1,3 +1,5 @@
+from typing import Optional
+from accounts.models import EmailUser
 import bleach
 from django import forms
 from .models import BlogPost, Tag
@@ -23,7 +25,7 @@ class BlogPostForm(forms.ModelForm):
         content = self.cleaned_data.get("content", "")
         return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
 
-    def save(self, author=None):
+    def save(self, author: Optional[EmailUser] = None):
         """
         On save of the form either updates or creates new blog.
         """

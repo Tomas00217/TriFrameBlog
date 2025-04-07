@@ -31,7 +31,7 @@ def blogs():
     return render_template("blogs.html", blogs=blogs, tags=tags, selected_tags=tag_slugs_list)
 
 @blogs_bp.get("/blogs/<int:blog_id>")
-def detail(blog_id):
+def detail(blog_id: int):
     try:
         blog = blog_service.get_blog_by_id(blog_id)
         related_blogs = blog_service.get_related_blogs(blog)
@@ -73,7 +73,7 @@ def create():
 
 @blogs_bp.route("/blogs/<int:blog_id>/edit", methods=["GET", "POST"])
 @login_required
-def edit(blog_id):
+def edit(blog_id: int):
     try:
         blog = blog_service.get_blog_by_id(blog_id)
 
@@ -107,7 +107,7 @@ def edit(blog_id):
 
 @blogs_bp.route("/blogs/<int:blog_id>/delete", methods=["GET", "POST"])
 @login_required
-def delete(blog_id):
+def delete(blog_id: int):
     try:
         blog = blog_service.get_blog_by_id(blog_id)
 

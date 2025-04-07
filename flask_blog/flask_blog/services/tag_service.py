@@ -1,5 +1,8 @@
+from flask_blog.repositories.tag_repository import TagRepository
+
+
 class TagService:
-    def __init__(self, tag_repo):
+    def __init__(self, tag_repo: TagRepository):
         """
         Initializes the TagService with a repository for tag operations.
 

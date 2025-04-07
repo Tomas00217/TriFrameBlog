@@ -14,6 +14,6 @@ class AdminModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_staff
 
-    def inaccessible_callback(self, name, **kwargs):
+    def inaccessible_callback(self, name: str, **kwargs):
         flash("You must be logged in to access the admin panel.", "danger")
         return redirect(url_for("accounts.login", next=request.url))
