@@ -95,7 +95,7 @@ async def register(
         await user_service.register_user(form.email.data, form.password1.data)
 
         toast(request, "Register successful.", "success")
-        return RedirectResponse(url="/accounts/login", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=request.url_for("login"), status_code=HTTP_303_SEE_OTHER)
     except EmailAlreadyExistsError as e:
         form.email.errors.append(e)
         return templates.TemplateResponse(request,
@@ -113,7 +113,7 @@ async def register(
 
 @accounts_router.get("/logout", response_class=HTMLResponse)
 async def logout(request: Request):
-    response = RedirectResponse(url="/accounts/login")
+    response = RedirectResponse(url="/")
 
     response.delete_cookie("auth_token")
 
@@ -147,7 +147,7 @@ async def profile(
         await user_service.update_username(user, form.username.data)
 
         toast(request, "Your username has been updated!", "success")
-        return RedirectResponse(url="/accounts/profile", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=request.url_for("profile"), status_code=HTTP_303_SEE_OTHER)
     except Exception:
         toast(request, "Error occured, please try again later.", "error")
         return templates.TemplateResponse(request,
