@@ -101,7 +101,7 @@ async def create(
         )
 
         toast(request, "Blog created successfully!", "success")
-        return RedirectResponse(url=f"/blogs/{blog.id}", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=request.url_for("detail", blog_id=blog.id), status_code=HTTP_303_SEE_OTHER)
     except Exception as e:
         form.image.data = None
         toast(request, "Error occured, please try again later.", "error")
@@ -198,7 +198,7 @@ async def edit(
         )
 
         toast(request, "Blog updated successfully!", "success")
-        return RedirectResponse(url=f"/blogs/{blog_id}", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=request.url_for("detail", blog_id=blog.id), status_code=HTTP_303_SEE_OTHER)
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
             request, "404.html", status_code=HTTP_404_NOT_FOUND
@@ -256,7 +256,7 @@ async def delete(
             await blog_post_service.delete_blog_post(blog_id)
 
         toast(request, "Blog deleted successfully!", "success")
-        return RedirectResponse(url="/blogs/my", status_code=HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=request.url_for("my_blogs",), status_code=HTTP_303_SEE_OTHER)
     except BlogPostNotFoundError:
         return templates.TemplateResponse(
             request, "404.html", status_code=HTTP_404_NOT_FOUND
