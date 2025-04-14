@@ -1,9 +1,7 @@
-from datetime import datetime
 import os
-from typing import Annotated, List, Optional
 import uuid
-import bleach
 import cloudinary.uploader
+from datetime import datetime
 from fastapi import Depends
 from fastapi_blog.accounts.models import EmailUser
 from fastapi_blog.blogs.exceptions import BlogPostNotFoundError
@@ -12,7 +10,8 @@ from fastapi_blog.config import settings
 from fastapi_blog.repositories.blog_post_repository import BlogPostRepository, get_blog_post_repository
 from fastapi_blog.repositories.email_user_repository import EmailUserRepository, get_email_user_repository
 from fastapi_blog.repositories.tag_repository import TagRepository, get_tag_repository
-
+from html_sanitizer import Sanitizer
+from typing import Annotated, List, Optional
 
 class BlogPostService:
     def __init__(self, blog_repo: BlogPostRepository, tag_repo: TagRepository, user_repo: EmailUserRepository):
@@ -197,10 +196,18 @@ class BlogPostService:
         Returns:
             str: The cleaned content, safe for rendering in the application.
         """
-        allowed_tags = ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"]
-        allowed_attrs = {"a": ["href", "target"], "span": ["class", "contenteditable"]}
+        sanitizer = Sanitizer({
+            "tags": ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
+            "attributes": {
+                "a": ["href", "target", "rel"],
+                "span": ["class", "contenteditable"],
+                "li": ["data-list"]
+            },
+            "empty": ["br", "p", "span"],
+            "separate": ["li", "p", "br"],
+        })
 
-        return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
+        return sanitizer.sanitize(content)
 
     def upload_image(self, image_file):
         """
