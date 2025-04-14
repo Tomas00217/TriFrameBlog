@@ -330,20 +330,16 @@ def test_upload_image_none(blog_post_service):
 
     assert result is None
 
-@patch('bleach.clean')
-def test_clean_content(mock_clean, blog_post_service):
-    """Test clean_content method"""
+@patch('html_sanitizer.Sanitizer.sanitize')
+def test_clean_content(mock_sanitize, blog_post_service):
+    """Test clean_content method using html-sanitizer"""
     blog_post_service.clean_content = BlogPostService.clean_content.__get__(blog_post_service)
 
     content = "<p>Test content</p><script>alert('XSS')</script>"
     cleaned_content = "<p>Test content</p>"
-    mock_clean.return_value = cleaned_content
+    mock_sanitize.return_value = cleaned_content
 
     result = blog_post_service.clean_content(content)
 
-    mock_clean.assert_called_once()
+    mock_sanitize.assert_called_once()
     assert result == cleaned_content
-
-    args, kwargs = mock_clean.call_args
-    assert kwargs['tags'] == ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"]
-    assert kwargs['attributes'] == {"a": ["href", "target"], "span": ["class", "contenteditable"]}

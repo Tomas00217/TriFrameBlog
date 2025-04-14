@@ -51,6 +51,9 @@ def create(request):
 
             messages.success(request, "Blog created successfully.")
             return redirect("detail", blog_id=blog.pk)
+
+        form.instance.image = None
+        return render(request, "blogs/edit.html", {"form": form}, status=400)
     else:
         form = BlogPostForm()
 
@@ -59,17 +62,22 @@ def create(request):
 @login_required(login_url='/accounts/login/')
 def edit(request, blog_id: int):
     blog = get_object_or_404(BlogPost, pk=blog_id)
+    blog_image = blog.image
 
     if request.user != blog.author and not request.user.is_staff:
         raise PermissionDenied
 
     if request.method == "POST":
         form = BlogPostForm(request.POST, request.FILES, instance=blog)
+
         if form.is_valid():
             blog_post = form.save()
 
             messages.success(request, "Blog updated successfully.")
             return redirect("detail", blog_id=blog_post.pk)
+
+        form.instance.image = blog_image
+        return render(request, "blogs/edit.html", {"form": form, "blog": blog}, status=400)
     else:
         form = BlogPostForm(instance=blog)
 
@@ -78,7 +86,7 @@ def edit(request, blog_id: int):
 @login_required(login_url='/accounts/login/')
 def delete(request, blog_id: int):
     blog = get_object_or_404(BlogPost, pk=blog_id)
-    
+
     if request.user != blog.author and not request.user.is_staff:
         raise PermissionDenied
 
@@ -87,5 +95,5 @@ def delete(request, blog_id: int):
 
         messages.success(request, "Blog deleted successfully.")
         return redirect("my_blogs")
-    
+
     return render(request, "blogs/delete.html", {"blog": blog})

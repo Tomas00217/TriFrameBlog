@@ -1,8 +1,8 @@
 from typing import Optional
 from accounts.models import EmailUser
-import bleach
 from django import forms
 from .models import BlogPost, Tag
+from html_sanitizer import Sanitizer
 
 class BlogPostForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
@@ -19,11 +19,19 @@ class BlogPostForm(forms.ModelForm):
         """
         XSS protection, cleans the content of unwanted tags.
         """
-        allowed_tags = ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"]
-        allowed_attrs = {"a": ["href", "target"], "span": ["class", "contenteditable"]}
+        sanitizer = Sanitizer({
+            "tags": ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
+            "attributes": {
+                "a": ["href", "target", "rel"],
+                "span": ["class", "contenteditable"],
+                "li": ["data-list"]
+            },
+            "empty": ["br", "p"],
+            "separate": ["li", "p", "br"],
+        })
 
         content = self.cleaned_data.get("content", "")
-        return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
+        return sanitizer.sanitize(content)
 
     def save(self, author: Optional[EmailUser] = None):
         """
