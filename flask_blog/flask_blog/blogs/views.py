@@ -53,6 +53,9 @@ def my_blogs():
 def create():
     form = BlogPostForm(formdata=request.form, tag_service=tag_service)
 
+    if request.method == "GET":
+        return render_template("create.html", form=form)
+
     try: 
         if form.validate_on_submit():
             blog = blog_service.create_blog_post(
@@ -84,6 +87,8 @@ def edit(blog_id: int):
 
         if request.method == "GET":
             form.tags.data = [tag.id for tag in blog.tags]
+            print(form.image.data)
+            return render_template("edit.html", form=form, blog=blog)
 
         try: 
             if form.validate_on_submit():
@@ -98,9 +103,12 @@ def edit(blog_id: int):
                 flash("Blog updated successfully!", "success")
                 return redirect(url_for("blogs.detail", blog_id=blog.id))
         except Exception as e:
+            form.image.data = blog.image
+
             flash("Error occured. Please try again.", "error")
             return render_template("edit.html", form=form), 500
 
+        form.image.data = blog.image
         return render_template("edit.html", form=form, blog=blog), 400
     except BlogPostNotFoundError as e:
         abort(404, description=str(e))
@@ -124,6 +132,6 @@ def delete(blog_id: int):
                 flash("Error occured. Please try again.", "error")
                 return render_template("delete.html", blog=blog), 500
 
-        return render_template("delete.html", blog=blog), 400
+        return render_template("delete.html", blog=blog)
     except BlogPostNotFoundError as e:
         abort(404, description=str(e))

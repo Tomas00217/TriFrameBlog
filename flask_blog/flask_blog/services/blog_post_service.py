@@ -1,15 +1,14 @@
 import os
-from typing import List, Optional
 import uuid
-import bleach
 import cloudinary.uploader
-
 from flask import current_app
 from flask_blog.accounts.models import EmailUser
 from flask_blog.blogs.exceptions import BlogPostNotFoundError
 from flask_blog.blogs.models import BlogPost
 from flask_blog.repositories.blog_post_repository import BlogPostRepository
 from flask_blog.repositories.tag_repository import TagRepository
+from html_sanitizer import Sanitizer
+from typing import List, Optional
 
 class BlogPostService:
     def __init__(self, blog_repo: BlogPostRepository, tag_repo: TagRepository):
@@ -199,10 +198,18 @@ class BlogPostService:
         Returns:
             str: The cleaned content, safe for rendering in the application.
         """
-        allowed_tags = ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"]
-        allowed_attrs = {"a": ["href", "target"], "span": ["class", "contenteditable"]}
+        sanitizer = Sanitizer({
+            "tags": ["h1", "h2", "h3", "p", "b", "i", "u", "a", "ul", "ol", "li", "br", "strong", "em", "span"],
+            "attributes": {
+                "a": ["href", "target", "rel"],
+                "span": ["class", "contenteditable"],
+                "li": ["data-list"]
+            },
+            "empty": ["br", "p"],
+            "separate": ["li", "p", "br"],
+        })
 
-        return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
+        return sanitizer.sanitize(content)
 
     def upload_image(self, image_file):
         """
