@@ -23,6 +23,8 @@ def email_login(request):
                 return redirect("index")
             else:
                 form.add_error(None, "Your email and password did not match. Please try again.")
+
+        return render(request, "registration/login.html", {"form": form}, status=400)
     else:
         form = EmailUserLoginForm()
 
@@ -41,6 +43,8 @@ def register(request):
 
             messages.success(request, "Register successful.")
             return redirect("login")
+
+        return render(request, "registration/register.html", {"form": form}, status=400)
     else:
         form = EmailUserCreationForm()
 
@@ -58,5 +62,7 @@ def profile(request):
 
             messages.success(request, "Your username has been updated!")
             return redirect("profile")
+
+        return render(request, "accounts/profile.html", {"form": form}, status=400)
 
     return render(request, "accounts/profile.html", {"form": form})

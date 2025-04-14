@@ -26,8 +26,7 @@ class LoginViewTests(TestCase):
             "password": "wrongpassword"
         })
         self.assertFalse("_auth_user_id" in self.client.session)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Your email and password did not match. Please try again.")
+        self.assertContains(response, "Your email and password did not match. Please try again.", status_code=400)
 
 class RegisterViewTests(TestCase):
     def setUp(self):
@@ -55,8 +54,7 @@ class RegisterViewTests(TestCase):
             "password2": "WrongSecondPass123.",
         })
         self.assertFalse(get_user_model().objects.filter(email="newuser@example.com").exists()) 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "The two password fields didn’t match.") 
+        self.assertContains(response, "The two password fields didn’t match.", status_code=400) 
 
     def test_register_email_exists(self):
         """
@@ -67,8 +65,7 @@ class RegisterViewTests(TestCase):
             "password1": "Testpassword123!",
             "password2": "Testpassword123!",
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Email user with this Email already exists.")
+        self.assertContains(response, "Email user with this Email already exists.", status_code=400)
 
 class ProfileViewTests(TestCase):
     def setUp(self):
