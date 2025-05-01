@@ -16,9 +16,11 @@ class EmailUserSeeder(seeders.Seeder):
             return
 
         for _ in range(5):
-            EmailUser.objects.create(
+            user = EmailUser.objects.create(
                 email=faker.email(),
-                password='Password123'
             )
+
+            user.set_password("Password123")
+            user.save()
 
         print("Created users.")
