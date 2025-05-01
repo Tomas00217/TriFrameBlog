@@ -67,7 +67,7 @@ Use the Bash script:
 bash start-local-dev.sh
 ```
 
-In case you run into an error "Illegal option -", try running the following command which will replace DOS newlines:
+In case you run into an errors related to invalid commands such as "\r", try running the following command which will replace DOS newlines:
 
 ```bash
 sed -i 's/\r$//' start-local-dev.sh
