@@ -25,8 +25,11 @@ docker --version
 ### **Initial Setup**
 
 When running the app for the first time, use the provided start script. This will:
-Create the necessary `.env` file
-Set up and start the database and web application containers
+
+- Create the necessary `.env` file
+- Set up and start the database and web application containers
+- Set up a super user
+- Seed the database with blogs, tags, and users
 
 Once started, you can access the website at:
 **http://localhost:8000** or **http://127.0.0.1:8000**
@@ -62,6 +65,12 @@ Use the Bash script:
 
 ```bash
 bash start-local-dev.sh
+```
+
+In case you run into an error "Illegal option -", try running the following command which will replace DOS newlines:
+
+```bash
+sed -i 's/\r$//' start-local-dev.sh
 ```
 
 #### **Restarting the Application**
