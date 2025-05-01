@@ -10,7 +10,7 @@ from flask_blog.accounts.models import EmailUser
 from flask_blog.admin import AdminModelView, MyAdminIndexView
 from flask_blog.blogs.admin import BlogPostAdminView
 from flask_blog.blogs.models import BlogPost, Tag
-from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf
+from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf, seeder
 from flask_blog.accounts.admin import EmailUserAdminView
 
 load_dotenv()
@@ -31,12 +31,14 @@ def create_app(config_name = None):
 
     app.static_folder = app.config["STATIC_FOLDER"]
 
+
     # Extensions
     login_manager.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     csrf.init_app(app)
+    seeder.init_app(app, db)
 
     # Blueprints
     from flask_blog.accounts.views import accounts_bp
