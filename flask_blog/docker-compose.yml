@@ -6,28 +6,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - '5433:5432'
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_DB:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_DB:-postgres}
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      interval: 5s
+      retries: 5
 
   web:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     volumes:
       - .:/app
       - ./media:/app/media
       - ../shared:/shared
     ports:
       - '5000:5000'
-    environment:
-      - FLASK_ENV=development
-      - FLASK_APP=flask_blog
-      - DATABASE_URI=postgresql://postgres:postgres@db:5432/postgres
-      - SECRET_KEY=dev_secret_key_replace_in_production
-      - USE_LOCAL_STORAGE=True
     depends_on:
       - db
     command: >
@@ -39,7 +35,7 @@ services:
   tests:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     volumes:
       - .:/app
       - ./media:/app/media

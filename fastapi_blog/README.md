@@ -105,7 +105,7 @@ docker-compose exec web pytest
 
 ## Production Mode
 
-Production mode runs the app behind **Nginx**, with HTTPS enabled.
+Production mode runs the app using **Uvicorn** behind **Nginx**, with HTTPS enabled.
 
 > Development mode is easier to get started with and is recommended for exploring the app. See the dev instructions for automatic `.env` setup and a simpler workflow.
 

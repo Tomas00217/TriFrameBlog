@@ -17,7 +17,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.app
+      dockerfile: Dockerfile
     volumes:
       - .:/app
       - ./media:/app/media

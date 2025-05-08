@@ -6,18 +6,11 @@ Write-Host "Starting Flask local development environment..." -ForegroundColor Gr
 if (-not (Test-Path .env)) {
     Write-Host "Creating .env file for development..." -ForegroundColor Yellow
     @"
-# Flask settings
-FLASK_ENV=development
-FLASK_DEBUG=1
+FLASK_APP=flask_blog
 SECRET_KEY=dev_secret_key_replace_in_production
-
-# Database settings
 DATABASE_URI=postgresql://postgres:postgres@db:5432/postgres
 
-# Storage configuration, change to false if using cloudinary
-USE_LOCAL_STORAGE=True
-
-# Cloudinary settings (only used in production)
+# Cloudinary settings (set for production)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret

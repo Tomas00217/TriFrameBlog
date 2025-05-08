@@ -87,7 +87,7 @@ def edit(blog_id: int):
 
         if request.method == "GET":
             form.tags.data = [tag.id for tag in blog.tags]
-            print(form.image.data)
+
             return render_template("edit.html", form=form, blog=blog)
 
         try: 
@@ -104,9 +104,10 @@ def edit(blog_id: int):
                 return redirect(url_for("blogs.detail", blog_id=blog.id))
         except Exception as e:
             form.image.data = blog.image
+            print(e)
 
             flash("Error occured. Please try again.", "error")
-            return render_template("edit.html", form=form), 500
+            return render_template("edit.html", form=form, blog=blog), 500
 
         form.image.data = blog.image
         return render_template("edit.html", form=form, blog=blog), 400
