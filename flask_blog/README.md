@@ -156,7 +156,7 @@ Place them under `nginx/certs/`:
 You can generate self-signed certs for local use with OpenSSL like so (on windows it might require installing OpenSSL or using git bash if git is installed or WSL):
 
 ```bash
-mkdir certs
+mkdir nginx/certs
 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout nginx/certs/localhost.key \
