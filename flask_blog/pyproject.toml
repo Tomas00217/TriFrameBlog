@@ -28,6 +28,7 @@ dependencies = [
     "flask-seeder (>=1.2.0,<2.0.0)",
     "setuptools (>=80.1.0,<81.0.0)",
     "faker (>=37.1.0,<38.0.0)",
+    "gunicorn (>=23.0.0,<24.0.0)",
 ]
 
 

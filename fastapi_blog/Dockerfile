@@ -3,7 +3,6 @@ FROM python:3.13-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV DJANGO_ENV development
 
 # Set work directory
 WORKDIR /app
@@ -20,11 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install poetry
 
 # Copy project
-COPY . /app/
+COPY . /app
 
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
 
-# Create media directory
-RUN mkdir -p /app/media
+# Create uploads directory
+RUN mkdir -p /app/uploads

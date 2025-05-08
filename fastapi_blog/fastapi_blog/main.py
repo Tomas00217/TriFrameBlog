@@ -15,6 +15,7 @@ from fastapi_blog.auth import manager
 from starlette.middleware.sessions import SessionMiddleware
 from starlette_wtf import CSRFProtectMiddleware
 from starlette_admin.contrib.sqlmodel import Admin
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 app = FastAPI(title="TriFrameBlog")
 app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
@@ -23,6 +24,7 @@ app.mount("/media", StaticFiles(directory=settings.UPLOAD_FOLDER), name="media")
 # Middleware
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 app.add_middleware(CSRFProtectMiddleware, csrf_secret=settings.CSRF_SECRET, enabled=not settings.TESTING)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 manager.attach_middleware(app)
 

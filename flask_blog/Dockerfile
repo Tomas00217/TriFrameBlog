@@ -3,7 +3,6 @@ FROM python:3.13-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV FASTAPI_ENV dev
 
 # Set work directory
 WORKDIR /app
@@ -20,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install poetry
 
 # Copy project
-COPY . /app
+COPY . /app/
 
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false \
