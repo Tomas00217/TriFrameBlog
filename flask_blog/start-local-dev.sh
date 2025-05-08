@@ -9,7 +9,6 @@ echo -e "Starting Flask local development environment..."
 if [ ! -f .env ]; then
     echo -e "Creating .env file for development..."
     cat > .env << EOL
-FLASK_APP=flask_blog
 SECRET_KEY=dev_secret_key_replace_in_production
 DATABASE_URI=postgresql://postgres:postgres@db:5432/postgres
 
@@ -23,4 +22,4 @@ fi
 
 # Build and start the containers
 echo -e "Building and starting Docker containers..."
-docker-compose -f docker-compose.yml up --build
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build

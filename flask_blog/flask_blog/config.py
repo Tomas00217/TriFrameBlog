@@ -1,25 +1,12 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-config_name = os.environ.get("FLASK_ENV", "development")
-
-if config_name == "development":
-    env_file = BASE_DIR / ".env"
-else:
-    env_file = BASE_DIR / f".env.{config_name}"
-
-if env_file.exists():
-    load_dotenv(dotenv_path=env_file)
-else:
-    load_dotenv()
-
 class Config:
-    SECRET_KEY = os.environ["SECRET_KEY"]
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev_secret_key_replace_in_production")
     SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URI"]
     SQLALCHEMY_ENGINE_OPTIONS = {"future": True}
     FLASK_ADMIN_SWATCH = "cerulean"

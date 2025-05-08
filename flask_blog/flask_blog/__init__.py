@@ -1,10 +1,10 @@
 import os
+from pathlib import Path
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import Flask, send_from_directory
 from flask_admin import Admin
 from flask_blog.accounts.commands import register_commands
-from flask_blog.config import config
 from flask_blog.container import container
 from flask_blog.accounts.models import EmailUser
 from flask_blog.admin import AdminModelView, MyAdminIndexView
@@ -13,7 +13,13 @@ from flask_blog.blogs.models import BlogPost, Tag
 from flask_blog.extensions import login_manager, db, migrate, bcrypt, csrf, seeder
 from flask_blog.accounts.admin import EmailUserAdminView
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+default_env = os.environ.get("FLASK_ENV", "development")
+env_file = BASE_DIR / (".env" if default_env == "development" else f".env.{default_env}")
+load_dotenv(dotenv_path=env_file if env_file.exists() else None)
+
+from flask_blog.config import config
 
 def create_app(config_name = None):
     app = Flask(__name__)
