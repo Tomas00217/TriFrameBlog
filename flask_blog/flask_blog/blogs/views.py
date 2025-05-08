@@ -104,7 +104,6 @@ def edit(blog_id: int):
                 return redirect(url_for("blogs.detail", blog_id=blog.id))
         except Exception as e:
             form.image.data = blog.image
-            print(e)
 
             flash("Error occured. Please try again.", "error")
             return render_template("edit.html", form=form, blog=blog), 500
