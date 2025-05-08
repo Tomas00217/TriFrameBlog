@@ -6,7 +6,6 @@ Write-Host "Starting Flask local development environment..." -ForegroundColor Gr
 if (-not (Test-Path .env)) {
     Write-Host "Creating .env file for development..." -ForegroundColor Yellow
     @"
-FLASK_APP=flask_blog
 SECRET_KEY=dev_secret_key_replace_in_production
 DATABASE_URI=postgresql://postgres:postgres@db:5432/postgres
 
@@ -20,4 +19,4 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 # Build and start the containers
 Write-Host "Building and starting Docker containers..." -ForegroundColor Green
-docker-compose -f docker-compose.yml up --build
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build

@@ -56,6 +56,12 @@ Run the following PowerShell script:
 .\StartLocalDev.ps1
 ```
 
+In case you run into an issue with permissions for the script, try adding temporary bypass:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
 #### **Linux / macOS**
 
 Use the Bash script:
